@@ -11,7 +11,12 @@ Git stores committed source and documentation. It does not store ignored binarie
 - Push main and tags after setup; a local tag is not an off-machine backup.
 - A commit message/PR records validation. Each feature or migration PR includes its own rollback note.
 
-Current starting point: `checkpoint/prototype-2026-11-15` at `b0ff308`.
+Pushed starting points:
+
+- `checkpoint/prototype-2026-11-15` at `b0ff308`: initial working Go CLI.
+- `checkpoint/planning-2026-11-15` at `1fa4d1e`: roadmap and recovery foundation.
+
+The public contributor setup checkpoint is `checkpoint/open-source-2026-11-15`, created after its setup PR passes CI and merges. `git tag --list 'checkpoint/*'` shows available local checkpoints; `git fetch origin --tags` retrieves pushed ones.
 
 ## Inspect an old version without changing current work
 

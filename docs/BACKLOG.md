@@ -1,6 +1,17 @@
 # Initial issue backlog
 
-This is an issue seed, not evidence that GitHub issues already exist. Copy each ticket into GitHub; replace its local ID with the issue link once created. Keep acceptance criteria in the issue after that. Effort is relative: S/M/L.
+M0–M1 tickets now exist on GitHub; their linked issues are the source of truth for acceptance criteria and status. The sections below preserve the original plan. Effort is relative: S/M/L.
+
+| Local ID | GitHub issue |
+| --- | --- |
+| M0-01 | [#4 — Public setup and remaining owner settings](https://github.com/Mickyj70/sky/issues/4) |
+| M0-02 | [#5 — CLI/provider contracts](https://github.com/Mickyj70/sky/issues/5) |
+| M0-03 | [#10 — Command help examples; good first issue](https://github.com/Mickyj70/sky/issues/10) |
+| M0-04 | [#11 — PowerShell contributor guide; good first issue](https://github.com/Mickyj70/sky/issues/11) |
+| M1-01 | [#6 — Storage and watchlists](https://github.com/Mickyj70/sky/issues/6) |
+| M1-02 | [#7 — Polling scheduler](https://github.com/Mickyj70/sky/issues/7) |
+| M1-03 | [#8 — Watch output and observation state](https://github.com/Mickyj70/sky/issues/8) |
+| M1-04 | [#9 — Saved tracking release validation](https://github.com/Mickyj70/sky/issues/9) |
 
 ## M0 — Foundation
 

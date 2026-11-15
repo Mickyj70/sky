@@ -28,3 +28,13 @@ Code uses MIT; provider data terms remain separate. Follow CONTRIBUTING, CODE_OF
 ## Setup verification
 
 STATUS records the current hosted CI and branch protection results. A committed workflow definition alone does not prove that GitHub ran it. Future changes to repository settings must preserve fork contributions and offline checks.
+
+## Remaining owner settings
+
+The integration returned HTTP 403 for repository administration. Main is currently unprotected and private vulnerability reporting is disabled; these are tracked in [#4](https://github.com/Mickyj70/sky/issues/4).
+
+1. In repository Settings, add a main-branch rule requiring PRs and successful `Go 1.24.x checks` / `Go stable checks`. Block force pushes and branch deletion; avoid requiring a separate approver while there is only one maintainer.
+2. In Security settings, enable private vulnerability reporting. Until then, SECURITY's fallback applies.
+3. Optionally allow squash merges only and auto-delete merged branches; a Projects board can also be added by the owner.
+
+Successful CI is verified at [run 43747116584](https://github.com/Mickyj70/sky/actions/runs/43747116584). These checks are not yet enforced as branch requirements.

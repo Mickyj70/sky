@@ -2,47 +2,60 @@
 
 Updated: 2026-11-15. Current focus: **M0 — Project foundation**.
 
-## Baseline
+## Repository and progress
 
-- Working Go prototype: registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, JSON/table output.
-- Prototype commit: `b0ff308`.
-- Recovery tag: `checkpoint/prototype-2026-11-15`.
-- Planning checkpoint: `checkpoint/planning-2026-11-15` (created with the planning commit).
-- Public repository: [Mickyj70/sky](https://github.com/Mickyj70/sky). Publication setup is in progress; no stable release exists.
+- Public repository: [Mickyj70/sky](https://github.com/Mickyj70/sky); source license: MIT.
+- [Milestones M0–M5](https://github.com/Mickyj70/sky/milestones) track the delivery roadmap.
+- [Issues](https://github.com/Mickyj70/sky/issues) track implementation, acceptance criteria, dependencies and rollback notes.
+- [Beginner-friendly contributions](https://github.com/Mickyj70/sky/labels/good%20first%20issue): command help examples #10 and PowerShell contributor guidance #11.
+- Progress uses status labels; a Projects board is optional and unavailable to the current integration.
+- No stable release or prebuilt release binaries exist. `go install github.com/Mickyj70/sky/cmd/sky@main` installs development code.
+
+## Baseline and recovery
+
+- Prototype: `b0ff308`, tag `checkpoint/prototype-2026-11-15`.
+- Planning foundation: `1fa4d1e`, tag `checkpoint/planning-2026-11-15`.
+- Public contributor foundation: `612bd45` (canonical Go module, MIT license, contributor/security guidance and Dependabot).
+- Public setup checkpoint: `checkpoint/open-source-2026-11-15` (created after the setup documentation is merged and checked).
+- Existing prototype/planning tags are pushed to GitHub. See RECOVERY for safe code reverts and future database recovery.
 
 ## Progress
 
 | Area | State | Evidence / remaining work |
 | --- | --- | --- |
-| Prototype | Done | Source and tests committed in `b0ff308`; live smoke checks completed 2026-11-15 |
-| Local version control | Done | Main branch and prototype recovery tag |
-| Roadmap and recovery process | Prepared | `ROADMAP.md`, `RECOVERY.md`, `CONTRIBUTING.md` |
-| Automated checks | Local checks pass; hosted run pending | Workflow in `.github/workflows/ci.yml` |
-| Public GitHub repository | Created by owner; setup in progress | `Mickyj70/sky`; MIT license selected; Projects access unavailable |
-| Output contract and additional fixtures | Planned | M0-02 in `BACKLOG.md` |
-| Watchlists and scheduler | Not started | M1-01 through M1-04 |
+| Prototype | Done | Registration/hex/callsign lookup, nearby traffic, regional airline filtering, JSON/table output |
+| Public source and licensing | Done | Public repo, canonical module path, MIT code license; provider data terms are separate |
+| Contributor experience | Done | Fork/PR guidance, templates, code of conduct, security policy and two good first issues |
+| Roadmap and backlog | Published | Six milestones; initial M0–M1 issues linked from BACKLOG |
+| Automated checks | Hosted checks pass | [First successful CI run](https://github.com/Mickyj70/sky/actions/runs/43747116584) on Go 1.24.x and stable |
+| Dependency updates | Configured | Dependabot for Go modules and GitHub Actions; generated PRs still require review |
+| Main branch protection | Owner action needed | `protected: false`; integration cannot configure repository administration (HTTP 403) |
+| Private vulnerability reporting | Owner action needed | Disabled; enabling it returned HTTP 403. SECURITY describes the current fallback |
+| Projects board / merge settings | Owner action needed, optional | Projects and repository settings are outside current token permissions; labels work now |
+| Output contract and additional fixtures | Ready | [#5](https://github.com/Mickyj70/sky/issues/5) |
+| Watchlists and scheduler | Not started | #6–#9, dependent on contract hardening |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
-## Verification of this planning checkpoint
+## Verification
 
-- Local `go test -race ./...`, `go vet ./...`, and binary build passed with Go 1.27.4.
-- Markdown links and workflow YAML were checked locally. Hosted CI and the minimum-version job remain unverified until GitHub setup.
-- Recovery was demonstrated: created a separate detached worktree from the prototype tag, built it, ran `sky --version`, and removed the temporary worktree without altering main.
+- Local `go test -race ./...`, `go vet ./...`, and binary build passed after changing to the public module path.
+- GitHub CI independently passed formatting, race tests, vet, build, and help smoke checks on both supported Go tracks.
+- Prototype recovery was demonstrated in a separate detached worktree without altering main.
+- Live provider smoke checks succeeded on 2026-11-15; provider calls are not required by CI and coverage is not guaranteed.
 
-## Next work, in order
+## Next work
 
-1. Push public repository commits/tags and create the M0–M1 issues from `BACKLOG.md`.
-2. Confirm the hosted CI run is green and configure required checks where supported.
-3. Finish M0-02: define compatibility/error behavior and cover missing provider contract cases.
-4. Design and implement M1-01: config paths, SQLite selection, schema, and backup/restore behavior.
+1. Owner completes the settings checklist in [#4](https://github.com/Mickyj70/sky/issues/4): protect main and enable private vulnerability reporting. No broader credential needs to be pasted into chat.
+2. Implement [#5: CLI/provider contracts](https://github.com/Mickyj70/sky/issues/5) through a focused PR.
+3. Design [#6: storage and persisted watchlists](https://github.com/Mickyj70/sky/issues/6), then work through scheduler #7, watch output #8, and release validation #9.
+4. Contributors can independently pick up #10 or #11.
 
-## Open decisions
+## Open technical decisions
 
-- GitHub Projects board: unavailable with current integration permissions; use milestones and status labels.
-- Code license: MIT. Provider data licenses remain separate.
-- SQLite driver: decide with platform/release requirements in M1-01.
-- Provider for scheduled flights: evaluate in M3; no paid provider is configured or required today.
+- SQLite driver: select against platform and backup requirements in #6.
+- Commercial provider for scheduled flights: evaluate in M3; no paid provider is required for today's commands.
+- Stable JSON/exit-code contract: define in #5 before the scheduler and additional providers depend on it.
 
 ## Update protocol
 
-Update this file in each progress PR: what completed, validation performed, next issue, and any blockers. Keep it consistent with GitHub milestones. Avoid maintaining duplicate issue checklists here; `BACKLOG.md` is the initial seed until GitHub issues exist.
+Update this file in each progress PR with completed work, validation, next issue, and blockers. GitHub issues are the source of truth for active task status; BACKLOG retains the issue index and later work packages.

@@ -4,7 +4,7 @@ Sky is pre-release software. Security fixes currently target the latest `main` b
 
 ## Report a vulnerability
 
-Use [GitHub's private vulnerability reporting](https://github.com/Mickyj70/sky/security/advisories/new) when available. Include affected revision, reproduction steps, impact, and a minimal sanitized example. Do not include working API keys, personal information, or collected aircraft histories.
+Private vulnerability reporting is currently disabled; enabling it is tracked in [#4](https://github.com/Mickyj70/sky/issues/4). Once enabled, use [GitHub's private vulnerability reporting](https://github.com/Mickyj70/sky/security/advisories/new). Include affected revision, reproduction steps, impact, and a minimal sanitized example. Do not include working API keys, personal information, or collected aircraft histories.
 
 If private reporting is unavailable, contact GitHub Support for a safe reporting route rather than opening a public issue with exploit details. Do not post credentials or detailed exploit instructions in public issues or pull requests.
 

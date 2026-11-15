@@ -46,7 +46,7 @@ Exit criteria:
 - The prototype can be checked out and built in a separate worktree using the recovery guide.
 - Current behavior is documented, including regional airline filtering and missing data.
 
-Current status: local repository, checkpoints, project documentation, CI definition, and GitHub templates are prepared. GitHub publication, hosted CI execution, issue creation, branch rules, and contract hardening remain open until publication setup completes.
+Current status: public repository, MIT licensing, contributor guidance, pushed checkpoints, hosted CI, initial issues, labels and all six milestones are set up. Owner-only branch protection/private-reporting settings remain in #4; contract hardening remains in #5. Projects is optional and currently permission-blocked.
 
 ### M1 — Saved tracking
 
