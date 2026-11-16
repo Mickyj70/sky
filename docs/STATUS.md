@@ -32,13 +32,13 @@ Updated: 2026-11-16. Current focus: **M0 — Project foundation**.
 | Main branch protection | Owner action needed | `protected: false`; integration cannot configure repository administration (HTTP 403) |
 | Private vulnerability reporting | Owner action needed | Disabled; enabling it returned HTTP 403. SECURITY describes the current fallback |
 | Projects board / merge settings | Owner action needed, optional | Projects and repository settings are outside current token permissions; labels work now |
-| Output contract and additional fixtures | Implemented on `feat/5-cli-provider-contracts`; PR review pending | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
+| Output contract and additional fixtures | [PR #14](https://github.com/Mickyj70/sky/pull/14) open for review | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
 | Watchlists and scheduler | Not started | #6–#9, dependent on contract hardening |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
 ## Verification
 
-- Issue #5 branch: local race tests, vet, build, Markdown links and desired protection JSON checks pass. New provider fixtures and subprocess/binary checks require no live API calls. Hosted verification will be recorded on its PR.
+- Issue #5 branch: local race tests, vet, build, Markdown links and desired protection JSON checks pass. New provider fixtures and subprocess/binary checks require no live API calls. Hosted checks run on [PR #14](https://github.com/Mickyj70/sky/pull/14).
 
 - Local `go test -race ./...`, `go vet ./...`, and binary build passed after changing to the public module path.
 - GitHub CI independently passed formatting, race tests, vet, build, and help smoke checks on both supported Go tracks.
