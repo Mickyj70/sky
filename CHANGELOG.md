@@ -13,3 +13,12 @@ Only actual releases receive versioned sections. The CLI currently reports 0.1.0
 - Local Git checkpoints for the working prototype and planning foundation.
 
 - MIT code license, public contribution/security policies, fork workflow, Dependabot, and canonical GitHub module path.
+
+### Changed
+
+- Query-based injectable provider boundary, with endpoint construction isolated from CLI commands.
+- Typed provider errors and Retry-After deadlines for future bounded polling.
+- Detailed exit codes and an explicit alpha JSON contract (provider field names retained).
+- Invalid/oversized provider responses fail explicitly; unknown readings remain absent.
+- Offline HTTP fixtures, cancellation/error-boundary coverage, subprocess stream/exit checks, and real-binary entrypoint checks.
+- Checked-in desired main-branch protection configuration; applying it remains blocked by repository administration permissions.

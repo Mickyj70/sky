@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-15. Current focus: **M0 — Project foundation**.
+Updated: 2026-11-16. Current focus: **M0 — Project foundation**.
 
 ## Repository and progress
 
@@ -32,11 +32,13 @@ Updated: 2026-11-15. Current focus: **M0 — Project foundation**.
 | Main branch protection | Owner action needed | `protected: false`; integration cannot configure repository administration (HTTP 403) |
 | Private vulnerability reporting | Owner action needed | Disabled; enabling it returned HTTP 403. SECURITY describes the current fallback |
 | Projects board / merge settings | Owner action needed, optional | Projects and repository settings are outside current token permissions; labels work now |
-| Output contract and additional fixtures | Ready | [#5](https://github.com/Mickyj70/sky/issues/5) |
+| Output contract and additional fixtures | Implemented on `feat/5-cli-provider-contracts`; PR review pending | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
 | Watchlists and scheduler | Not started | #6–#9, dependent on contract hardening |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
 ## Verification
+
+- Issue #5 branch: local race tests, vet, build, Markdown links and desired protection JSON checks pass. New provider fixtures and subprocess/binary checks require no live API calls. Hosted verification will be recorded on its PR.
 
 - Local `go test -race ./...`, `go vet ./...`, and binary build passed after changing to the public module path.
 - GitHub CI independently passed formatting, race tests, vet, build, and help smoke checks on both supported Go tracks.
@@ -45,8 +47,8 @@ Updated: 2026-11-15. Current focus: **M0 — Project foundation**.
 
 ## Next work
 
-1. Owner completes the settings checklist in [#4](https://github.com/Mickyj70/sky/issues/4): protect main and enable private vulnerability reporting. No broader credential needs to be pasted into chat.
-2. Implement [#5: CLI/provider contracts](https://github.com/Mickyj70/sky/issues/5) through a focused PR.
+1. Branch-protection apply was retried on 2026-11-16 and returned HTTP 403. Desired configuration is committed in `.github/branch-protection.json`; see GITHUB.md for the apply command. Owner completes the settings checklist in [#4](https://github.com/Mickyj70/sky/issues/4): protect main and enable private vulnerability reporting. No broader credential needs to be pasted into chat.
+2. Review and merge [#5: CLI/provider contracts](https://github.com/Mickyj70/sky/issues/5) after its checks pass. Existing contributor/dependency PRs remain separate.
 3. Design [#6: storage and persisted watchlists](https://github.com/Mickyj70/sky/issues/6), then work through scheduler #7, watch output #8, and release validation #9.
 4. Contributors can independently pick up #10 or #11.
 
@@ -54,7 +56,7 @@ Updated: 2026-11-15. Current focus: **M0 — Project foundation**.
 
 - SQLite driver: select against platform and backup requirements in #6.
 - Commercial provider for scheduled flights: evaluate in M3; no paid provider is required for today's commands.
-- Stable JSON/exit-code contract: define in #5 before the scheduler and additional providers depend on it.
+- Alpha JSON/exit-code contract: implemented in #5; accept through PR review before scheduler work depends on it.
 
 ## Update protocol
 

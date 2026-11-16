@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,9 +23,13 @@ var hexPattern = regexp.MustCompile(`^[0-9a-fA-F]{6}$`)
 var registrationPattern = regexp.MustCompile(`^[A-Z0-9][A-Z0-9-]{1,11}$`)
 var callsignPattern = regexp.MustCompile(`^[A-Z0-9]{2,8}$`)
 
-func New() *cobra.Command { return newCommand(provider.BaseURL) }
+func New() *cobra.Command {
+	return NewWithSource(&provider.Client{HTTP: &http.Client{}, BaseURL: provider.BaseURL, APIKey: os.Getenv("SKY_API_KEY")})
+}
 
-func newCommand(baseURL string) *cobra.Command {
+// NewWithSource allows embedding and offline integration tests without a
+// production environment override that could send API credentials elsewhere.
+func NewWithSource(source provider.Source) *cobra.Command {
 	var asJSON bool
 	var timeout time.Duration
 	root := &cobra.Command{
@@ -34,14 +39,15 @@ func newCommand(baseURL string) *cobra.Command {
 	}
 	root.PersistentFlags().BoolVar(&asJSON, "json", false, "Write structured JSON instead of a table")
 	root.PersistentFlags().DurationVar(&timeout, "timeout", 15*time.Second, "HTTP request timeout")
-	fetch := func(cmd *cobra.Command, path string, prefix string, airborne bool) error {
+	fetch := func(cmd *cobra.Command, query provider.Query, prefix string, airborne bool) error {
 		if timeout <= 0 {
 			return fmt.Errorf("timeout must be positive")
 		}
-		client := provider.Client{HTTP: &http.Client{Timeout: timeout}, BaseURL: baseURL, APIKey: os.Getenv("SKY_API_KEY")}
-		result, err := client.Fetch(cmd.Context(), path)
+		ctx, cancel := context.WithTimeout(cmd.Context(), timeout)
+		defer cancel()
+		result, err := source.Lookup(ctx, query)
 		if err != nil {
-			return err
+			return &executionError{err}
 		}
 		filtered := make([]provider.Aircraft, 0, len(result.Aircraft))
 		for _, a := range result.Aircraft {
@@ -62,24 +68,30 @@ func newCommand(baseURL string) *cobra.Command {
 		if asJSON {
 			enc := json.NewEncoder(cmd.OutOrStdout())
 			enc.SetIndent("", "  ")
-			return enc.Encode(result)
+			if err := enc.Encode(result); err != nil {
+				return &executionError{err}
+			}
+			return nil
 		}
-		return render(cmd.OutOrStdout(), result)
+		if err := render(cmd.OutOrStdout(), result); err != nil {
+			return &executionError{err}
+		}
+		return nil
 	}
 	var hex bool
 	plane := &cobra.Command{Use: "plane REGISTRATION", Short: "Find an observed aircraft by registration or ICAO hex", Args: cobra.ExactArgs(1), Example: "  sky plane G-VBEL\n  sky plane --hex 4073ce --json", RunE: func(cmd *cobra.Command, args []string) error {
 		id := strings.ToUpper(strings.TrimSpace(args[0]))
-		kind := "reg"
+		kind := provider.ByRegistration
 		if hex {
 			if !hexPattern.MatchString(id) {
 				return fmt.Errorf("ICAO hex must contain exactly six hexadecimal characters")
 			}
 			id = strings.ToLower(id)
-			kind = "hex"
+			kind = provider.ByHex
 		} else if !registrationPattern.MatchString(id) {
 			return fmt.Errorf("invalid registration; use --hex for a six-character ICAO address")
 		}
-		return fetch(cmd, "/v2/"+kind+"/"+id, "", false)
+		return fetch(cmd, provider.Query{Kind: kind, Identifier: id}, "", false)
 	}}
 	plane.Flags().BoolVar(&hex, "hex", false, "Interpret the identifier as an ICAO hex address")
 	callsign := &cobra.Command{Use: "callsign CALLSIGN", Short: "Look up a broadcast callsign (for example BAW123)", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
@@ -87,7 +99,7 @@ func newCommand(baseURL string) *cobra.Command {
 		if !callsignPattern.MatchString(id) {
 			return fmt.Errorf("callsign must contain 2–8 letters or digits")
 		}
-		return fetch(cmd, "/v2/callsign/"+id, "", false)
+		return fetch(cmd, provider.Query{Kind: provider.ByCallsign, Identifier: id}, "", false)
 	}}
 	// Airline filtering is deliberately local to a requested area. A callsign
 	// prefix identifies observed operator activity, not an authoritative fleet.
@@ -126,9 +138,7 @@ func newCommand(baseURL string) *cobra.Command {
 					return fmt.Errorf("use a three-letter ICAO operator code, for example UAL or BAW")
 				}
 			}
-			// Provider radius is nautical miles; the public CLI uses kilometres.
-			path := fmt.Sprintf("/v2/point/%s/%s/%s", strconv.FormatFloat(lat, 'f', -1, 64), strconv.FormatFloat(lon, 'f', -1, 64), strconv.FormatFloat(radius/1.852, 'f', 6, 64))
-			return fetch(cmd, path, prefix, airborne)
+			return fetch(cmd, provider.Query{Kind: provider.Nearby, Latitude: lat, Longitude: lon, RadiusKM: radius}, prefix, airborne)
 		}
 		return cmd
 	}
