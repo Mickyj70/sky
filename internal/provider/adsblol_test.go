@@ -38,7 +38,7 @@ func TestFetch(t *testing.T) {
 			}))
 			defer server.Close()
 			c := Client{BaseURL: server.URL, HTTP: server.Client(), APIKey: "test-key"}
-			result, err := c.Fetch(context.Background(), "/v2/hex/abc123")
+			result, err := c.fetch(context.Background(), "/v2/hex/abc123")
 			if tc.want != "" {
 				if err == nil || !strings.Contains(err.Error(), tc.want) {
 					t.Fatalf("got %v, want %s", err, tc.want)
@@ -73,7 +73,7 @@ func TestFetchTimeout(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { <-r.Context().Done() }))
 	defer server.Close()
 	c := Client{BaseURL: server.URL, HTTP: &http.Client{Timeout: 20 * time.Millisecond}}
-	if _, err := c.Fetch(context.Background(), "/v2/hex/abc123"); err == nil {
+	if _, err := c.fetch(context.Background(), "/v2/hex/abc123"); err == nil {
 		t.Fatal("expected request timeout")
 	}
 }

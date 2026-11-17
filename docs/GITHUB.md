@@ -38,3 +38,16 @@ The integration returned HTTP 403 for repository administration. Main is current
 3. Optionally allow squash merges only and auto-delete merged branches; a Projects board can also be added by the owner.
 
 Successful CI is verified at [run 43747116584](https://github.com/Mickyj70/sky/actions/runs/43747116584). These checks are not yet enforced as branch requirements.
+
+## Applying the checked-in main protection configuration
+
+The apply request was retried on 2026-11-16 and still returned HTTP 403. The current integration cannot perform this action; main remains unprotected. An owner using their own administrator-authorized GitHub CLI can run from a checkout containing this change:
+
+```sh
+gh api --method PUT repos/Mickyj70/sky/branches/main/protection \
+  --input .github/branch-protection.json
+
+gh api repos/Mickyj70/sky/branches/main --jq '{name, protected}'
+```
+
+The desired configuration requires a PR, both named Go CI checks, an up-to-date branch and resolved review conversations. It enforces rules for administrators, blocks force pushes/deletion, and requires linear history. Required independent approvals are zero so a solo maintainer is not locked out. Existing PRs can be updated and squash-merged when checks pass. The JSON file is a configuration proposal until the API/UI confirms protection is active; committing it does not enable protection.

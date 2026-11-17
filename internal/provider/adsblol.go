@@ -4,8 +4,10 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -42,11 +44,19 @@ type Client struct {
 	APIKey  string
 }
 
-func (c *Client) Fetch(ctx context.Context, path string) (Result, error) {
+func (c *Client) Lookup(ctx context.Context, query Query) (Result, error) {
+	path, err := query.path()
+	if err != nil {
+		return Result{}, &Error{Kind: Rejected, Message: err.Error(), Cause: err}
+	}
+	return c.fetch(ctx, path)
+}
+
+func (c *Client) fetch(ctx context.Context, path string) (Result, error) {
 	result := Result{Source: "adsb.lol", Aircraft: []Aircraft{}}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimRight(c.BaseURL, "/")+path, nil)
 	if err != nil {
-		return result, fmt.Errorf("create request: %w", err)
+		return result, &Error{Kind: Rejected, Message: "create request: " + err.Error(), Cause: err}
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "sky-cli/0.1.0")
@@ -59,7 +69,7 @@ func (c *Client) Fetch(ctx context.Context, path string) (Result, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return result, fmt.Errorf("request aircraft data: %w", err)
+		return result, transportError("request aircraft data", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusTooManyRequests {
@@ -67,17 +77,26 @@ func (c *Client) Fetch(ctx context.Context, path string) (Result, error) {
 		if retry := resp.Header.Get("Retry-After"); retry != "" {
 			hint = " (Retry-After: " + retry + ")"
 		}
-		return result, fmt.Errorf("adsb.lol rate limit reached%s; wait before retrying or configure SKY_API_KEY", hint)
+		return result, &Error{Kind: RateLimited, StatusCode: resp.StatusCode, RetryAt: retryAt(resp.Header.Get("Retry-After"), time.Now()), Message: fmt.Sprintf("adsb.lol rate limit reached%s; wait before retrying or configure SKY_API_KEY", hint)}
 	}
 	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("adsb.lol returned HTTP %d", resp.StatusCode)
+		kind := Rejected
+		switch {
+		case resp.StatusCode == 401 || resp.StatusCode == 403:
+			kind = Unauthorized
+		case resp.StatusCode >= 500 || resp.StatusCode == 408 || resp.StatusCode == 425:
+			kind = Unavailable
+		}
+		return result, &Error{Kind: kind, StatusCode: resp.StatusCode, RetryAt: retryAt(resp.Header.Get("Retry-After"), time.Now()), Message: fmt.Sprintf("adsb.lol returned HTTP %d", resp.StatusCode)}
 	}
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 16*1024*1024+1))
 	if err != nil {
-		return result, fmt.Errorf("read response: %w", err)
+		failure := transportError("read response", err)
+		failure.StatusCode = resp.StatusCode
+		return result, failure
 	}
 	if len(body) > 16*1024*1024 {
-		return result, fmt.Errorf("aircraft response exceeds 16 MiB")
+		return result, invalidResponse("aircraft response exceeds 16 MiB", nil)
 	}
 	var payload struct {
 		Aircraft []Aircraft `json:"ac"`
@@ -85,14 +104,22 @@ func (c *Client) Fetch(ctx context.Context, path string) (Result, error) {
 		Message  string     `json:"msg"`
 	}
 	if err := json.Unmarshal(body, &payload); err != nil {
-		return result, fmt.Errorf("decode aircraft response: %w", err)
+		return result, invalidResponse("decode aircraft response: "+err.Error(), err)
 	}
 	if payload.Message != "" && payload.Message != "No error" {
-		return result, fmt.Errorf("adsb.lol: %s", payload.Message)
+		return result, &Error{Kind: Rejected, StatusCode: resp.StatusCode, Message: "adsb.lol: " + payload.Message}
 	}
 	// A missing ac field is a schema error; an empty array is a successful lookup.
 	if payload.Aircraft == nil {
-		return result, fmt.Errorf("aircraft response is missing the ac array")
+		return result, invalidResponse("aircraft response is missing the ac array", nil)
+	}
+	if payload.Now < 0 || payload.Now > 253402300799999 {
+		return result, invalidResponse("aircraft snapshot timestamp is outside the supported UTC range", nil)
+	}
+	for i := range payload.Aircraft {
+		if err := validateAircraft(&payload.Aircraft[i]); err != nil {
+			return result, invalidResponse(fmt.Sprintf("invalid aircraft at index %d: %v", i, err), err)
+		}
 	}
 	result.Aircraft = payload.Aircraft
 	for i := range result.Aircraft {
@@ -104,4 +131,61 @@ func (c *Client) Fetch(ctx context.Context, path string) (Result, error) {
 		result.SnapshotAt = &t
 	}
 	return result, nil
+}
+
+func invalidResponse(message string, cause error) *Error {
+	return &Error{Kind: InvalidResponse, StatusCode: http.StatusOK, Message: message, Cause: cause}
+}
+
+func transportError(operation string, err error) *Error {
+	kind := Unavailable
+	var networkError net.Error
+	switch {
+	case errors.Is(err, context.Canceled):
+		kind = Canceled
+	case errors.Is(err, context.DeadlineExceeded):
+		kind = Timeout
+	case errors.As(err, &networkError) && networkError.Timeout():
+		kind = Timeout
+	}
+	return &Error{Kind: kind, Message: operation + ": " + err.Error(), Cause: err}
+}
+
+func validateAircraft(a *Aircraft) error {
+	if !aircraftHexPattern.MatchString(a.Hex) {
+		return fmt.Errorf("missing or invalid hex address")
+	}
+	if len(a.Altitude) > 0 {
+		var altitude any
+		if err := json.Unmarshal(a.Altitude, &altitude); err != nil {
+			return fmt.Errorf("alt_baro must be a number, ground, or null")
+		}
+		switch value := altitude.(type) {
+		case nil:
+			a.Altitude = nil
+		case float64:
+		case string:
+			if value != "ground" {
+				return fmt.Errorf("alt_baro must be a number, ground, or null")
+			}
+			a.Altitude = json.RawMessage(`"ground"`)
+		default:
+			return fmt.Errorf("alt_baro must be a number, ground, or null")
+		}
+	}
+	if a.Latitude != nil && (*a.Latitude < -90 || *a.Latitude > 90) {
+		return fmt.Errorf("latitude outside -90..90")
+	}
+	if a.Longitude != nil && (*a.Longitude < -180 || *a.Longitude > 180) {
+		return fmt.Errorf("longitude outside -180..180")
+	}
+	for _, v := range []*float64{a.Seen, a.PositionSeen, a.Speed} {
+		if v != nil && *v < 0 {
+			return fmt.Errorf("age and speed readings must be nonnegative")
+		}
+	}
+	if a.Track != nil && (*a.Track < 0 || *a.Track > 360) {
+		return fmt.Errorf("track outside 0..360")
+	}
+	return nil
 }

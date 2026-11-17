@@ -62,6 +62,8 @@ Each invocation makes one request. There is no automatic polling or retry loop. 
 - No observation does not establish whether an aircraft is landed, inactive, or outside receiver coverage.
 - Airline filtering uses broadcast callsign prefixes. It is a regional view of observed operator activity, not an authoritative airline fleet or codeshare lookup.
 
+See the [CLI/JSON/error contract](docs/CLI_CONTRACT.md) for field types, exit codes, provider failures, and alpha compatibility.
+
 ## Scope
 
 Implemented: aircraft and callsign lookup, nearby search, regional operator filtering, JSON output, timeout and rate-limit handling, interrupt cancellation.

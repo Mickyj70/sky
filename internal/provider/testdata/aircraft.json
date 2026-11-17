@@ -1,0 +1,12 @@
+{
+  "ac": [
+    {"hex":"000003","flight":"UAL123  ","r":"N123AB","t":"B738","alt_baro":32000,"gs":450,"track":0,"lat":0,"lon":0,"seen":0,"seen_pos":0},
+    {"hex":"000001","flight":"BAW456  ","r":"G-TEST","t":"A320","alt_baro":"ground","gs":0},
+    {"hex":"000002","alt_baro":null},
+    {"hex":"~000004","alt_baro":0},
+    {"hex":"~000005"}
+  ],
+  "now":1700000000000,
+  "msg":"No error",
+  "unknown_future_field":true
+}

@@ -2,8 +2,11 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -78,10 +81,10 @@ func TestAirlineQuery(t *testing.T) {
 		if r.URL.Path != "/v2/point/0/0/53.995680" {
 			t.Errorf("incorrect kilometre conversion or coordinates: %s", r.URL.Path)
 		}
-		fmt.Fprint(w, `{"ac":[{"hex":"000001","flight":"BAW123  ","alt_baro":10000},{"hex":"000002","flight":"BAW456","alt_baro":"ground"},{"hex":"000003","flight":"UAL1","alt_baro":20000},{"hex":"000004","flight":"BAW789"}],"now":1700000000000}`)
+		fmt.Fprint(w, `{"ac":[{"hex":"000001","flight":"BAW123  ","alt_baro":10000},{"hex":"000002","flight":"BAW456","alt_baro":"ground"},{"hex":"000003","flight":"UAL1","alt_baro":20000},{"hex":"000004","flight":"BAW789"},{"hex":"000005","flight":"BAW000","alt_baro":0}],"now":1700000000000}`)
 	}))
 	defer server.Close()
-	cmd := newCommand(server.URL)
+	cmd := NewWithSource(&provider.Client{BaseURL: server.URL, HTTP: server.Client()})
 	cmd.SetArgs([]string{"airline", "BAW", "--lat", "0", "--lon", "0", "--airborne", "--json"})
 	var out bytes.Buffer
 	cmd.SetOut(&out)
@@ -92,7 +95,38 @@ func TestAirlineQuery(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
 		t.Fatal(err)
 	}
-	if len(result.Aircraft) != 1 || result.Aircraft[0].Callsign != "BAW123" {
+	if len(result.Aircraft) != 2 || result.Aircraft[0].Callsign != "BAW123" || result.Aircraft[1].Callsign != "BAW000" {
 		t.Fatalf("unexpected operator filtering: %+v", result.Aircraft)
+	}
+}
+
+type brokenWriter struct{}
+
+func (brokenWriter) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }
+
+type sourceFunc func(context.Context, provider.Query) (provider.Result, error)
+
+func (f sourceFunc) Lookup(ctx context.Context, q provider.Query) (provider.Result, error) {
+	return f(ctx, q)
+}
+
+func TestOutputFailureExitCode(t *testing.T) {
+	source := sourceFunc(func(context.Context, provider.Query) (provider.Result, error) {
+		return provider.Result{Source: "test", Aircraft: []provider.Aircraft{}}, nil
+	})
+	for _, format := range []string{"table", "json"} {
+		t.Run(format, func(t *testing.T) {
+			cmd := NewWithSource(source)
+			args := []string{"plane", "N123AB"}
+			if format == "json" {
+				args = append(args, "--json")
+			}
+			cmd.SetArgs(args)
+			cmd.SetOut(brokenWriter{})
+			err := Execute(context.Background(), cmd)
+			if !errors.Is(err, io.ErrClosedPipe) || ExitCode(err) != 1 {
+				t.Fatalf("expected output failure exit 1, got %v (exit %d)", err, ExitCode(err))
+			}
+		})
 	}
 }
