@@ -146,7 +146,7 @@ func NewWithSource(source provider.Source) *cobra.Command {
 		}
 		return cmd
 	}
-	root.AddCommand(plane, callsign, area(false), area(true))
+	root.AddCommand(plane, callsign, area(false), area(true), watchCommand(&asJSON))
 	return root
 }
 

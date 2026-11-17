@@ -35,7 +35,9 @@ jobs:
         run: go test -race ./...
       - name: Vet
         run: go vet ./...
-      - name: Build
+      - name: Build without CGO
+        env:
+          CGO_ENABLED: '0'
         run: go build -o bin/sky ./cmd/sky
       - name: Smoke check
         run: ./bin/sky --help

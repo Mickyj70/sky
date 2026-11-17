@@ -1,13 +1,13 @@
 # Current project status
 
-Updated: 2026-11-16. Current focus: **M0 — Project foundation**.
+Updated: 2026-11-17. Current focus: **M1 — Saved tracking, issue #6**. Remaining owner settings stay tracked separately in #4.
 
 ## Repository and progress
 
 - Public repository: [Mickyj70/sky](https://github.com/Mickyj70/sky); source license: MIT.
 - [Milestones M0–M5](https://github.com/Mickyj70/sky/milestones) track the delivery roadmap.
 - [Issues](https://github.com/Mickyj70/sky/issues) track implementation, acceptance criteria, dependencies and rollback notes.
-- [Beginner-friendly contributions](https://github.com/Mickyj70/sky/labels/good%20first%20issue): command help examples #10 and PowerShell contributor guidance #11.
+- Contributor tasks: help examples #10 merged in PR #13; Windows guidance #11 is under review in PR #15.
 - Progress uses status labels; a Projects board is optional and unavailable to the current integration.
 - No stable release or prebuilt release binaries exist. `go install github.com/Mickyj70/sky/cmd/sky@main` installs development code.
 
@@ -29,14 +29,19 @@ Updated: 2026-11-16. Current focus: **M0 — Project foundation**.
 | Roadmap and backlog | Published | Six milestones; initial M0–M1 issues linked from BACKLOG |
 | Automated checks | Hosted checks pass | [First successful CI run](https://github.com/Mickyj70/sky/actions/runs/43747116584) on Go 1.24.x and stable |
 | Dependency updates | Configured | Dependabot for Go modules and GitHub Actions; generated PRs still require review |
-| Main branch protection | Owner action needed | `protected: false`; integration cannot configure repository administration (HTTP 403) |
-| Private vulnerability reporting | Owner action needed | Disabled; enabling it returned HTTP 403. SECURITY describes the current fallback |
-| Projects board / merge settings | Owner action needed, optional | Projects and repository settings are outside current token permissions; labels work now |
-| Output contract and additional fixtures | [PR #14](https://github.com/Mickyj70/sky/pull/14) open for review | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
-| Watchlists and scheduler | Not started | #6–#9, dependent on contract hardening |
+| Main branch protection | Active, verified 2026-11-17 | `protected: true`; detailed rules remain unreadable to the integration (HTTP 403) |
+| Private vulnerability reporting | Enabled, verified 2026-11-17 | Owner-configured; private reporting route in SECURITY |
+| Projects board / merge settings | Optional owner preferences | Merged branches auto-delete; all merge methods remain allowed; Projects access is unavailable to integration |
+| Output contract and additional fixtures | Merged | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
+| Persistent watchlists and recovery | Implemented on `feat/6-persistent-watchlists`; review pending | #6; see WATCHLISTS.md and ADR 0002 |
+| Polling scheduler and tracking output | Not started | #7–#9; depend on acceptance of watchlist storage |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
 ## Verification
+
+- Issue #6: local race tests, vet and a CGO-disabled build passed; the real binary completed add/duplicate/list/backup/remove/restore/list across separate processes.
+- CGO-disabled cross-compilation passed for macOS arm64/amd64 and Windows amd64; native Linux amd64 build and tests passed. Cross-compilation does not establish runtime validation on those other systems.
+- Storage tests cover persistence, concurrent duplicate writers, failed/canceled writes, unrelated/newer schema refusal, WAL-aware snapshots, non-overwrite recovery and competing restores. Tests use temporary local databases and no provider calls.
 
 - Issue #5 branch: local race tests, vet, build, Markdown links and desired protection JSON checks pass. New provider fixtures and subprocess/binary checks require no live API calls. Hosted checks run on [PR #14](https://github.com/Mickyj70/sky/pull/14).
 
@@ -47,16 +52,16 @@ Updated: 2026-11-16. Current focus: **M0 — Project foundation**.
 
 ## Next work
 
-1. Branch-protection apply was retried on 2026-11-16 and returned HTTP 403. Desired configuration is committed in `.github/branch-protection.json`; see GITHUB.md for the apply command. Owner completes the settings checklist in [#4](https://github.com/Mickyj70/sky/issues/4): protect main and enable private vulnerability reporting. No broader credential needs to be pasted into chat.
-2. Review and merge [#5: CLI/provider contracts](https://github.com/Mickyj70/sky/issues/5) after its checks pass. Existing contributor/dependency PRs remain separate.
-3. Design [#6: storage and persisted watchlists](https://github.com/Mickyj70/sky/issues/6), then work through scheduler #7, watch output #8, and release validation #9.
-4. Contributors can independently pick up #10 or #11.
+1. Owner verifies the exact active PR/check requirements against `.github/branch-protection.json` to finish #4. Branch protection and private reporting are now active; no broader credential needs to be pasted into chat.
+2. Review [#6: storage and persisted watchlists](https://github.com/Mickyj70/sky/issues/6), its recovery behavior and ADR 0002 after checks pass. Issue #5 merged in PR #14.
+3. Implement scheduler #7 after #6 is accepted, then watch output #8 and release validation #9.
+4. Review Windows contributor documentation in PR #15 separately; #10 is complete.
 
 ## Open technical decisions
 
-- SQLite driver: select against platform and backup requirements in #6.
+- SQLite driver: proposed modernc.org/sqlite v1.45.0 (pure Go, Go 1.24 compatible), documented in ADR 0002; accept with #6.
 - Commercial provider for scheduled flights: evaluate in M3; no paid provider is required for today's commands.
-- Alpha JSON/exit-code contract: implemented in #5; accept through PR review before scheduler work depends on it.
+- Alpha JSON/exit-code contract: #5 merged; watchlist operations extend it through WATCHLISTS.md.
 
 ## Update protocol
 
