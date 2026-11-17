@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-17. Current focus: **M1 — Saved tracking, issue #6**. Remaining owner settings stay tracked separately in #4.
+Updated: 2026-11-17. Current focus: **Architecture fixes before M1 polling, issue #7**. Remaining owner settings stay tracked separately in #4.
 
 ## Repository and progress
 
@@ -33,7 +33,8 @@ Updated: 2026-11-17. Current focus: **M1 — Saved tracking, issue #6**. Remaini
 | Private vulnerability reporting | Enabled, verified 2026-11-17 | Owner-configured; private reporting route in SECURITY |
 | Projects board / merge settings | Optional owner preferences | Merged branches auto-delete; all merge methods remain allowed; Projects access is unavailable to integration |
 | Output contract and additional fixtures | Merged | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
-| Persistent watchlists and recovery | Implemented on `feat/6-persistent-watchlists`; review pending | #6; see WATCHLISTS.md and ADR 0002 |
+| Persistent watchlists and recovery | Merged in PR #16 | #6; see WATCHLISTS.md and ADR 0002 |
+| Architecture fixes | Implemented on `fix/architecture-redirects-and-read-locks`; review pending | Redirect policy and nonblocking read validation; see ARCHITECTURE.md |
 | Polling scheduler and tracking output | Not started | #7–#9; depend on acceptance of watchlist storage |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
@@ -53,13 +54,13 @@ Updated: 2026-11-17. Current focus: **M1 — Saved tracking, issue #6**. Remaini
 ## Next work
 
 1. Owner verifies the exact active PR/check requirements against `.github/branch-protection.json` to finish #4. Branch protection and private reporting are now active; no broader credential needs to be pasted into chat.
-2. Review [#6: storage and persisted watchlists](https://github.com/Mickyj70/sky/issues/6), its recovery behavior and ADR 0002 after checks pass. Issue #5 merged in PR #14.
-3. Implement scheduler #7 after #6 is accepted, then watch output #8 and release validation #9.
+2. Review the redirect/read-lock architecture fixes after checks pass. Issue #6 merged in PR #16; issue #5 merged in PR #14.
+3. Implement scheduler #7 after the architecture fixes are accepted, then watch output #8 and release validation #9.
 4. Review Windows contributor documentation in PR #15 separately; #10 is complete.
 
 ## Open technical decisions
 
-- SQLite driver: proposed modernc.org/sqlite v1.45.0 (pure Go, Go 1.24 compatible), documented in ADR 0002; accept with #6.
+- SQLite driver: modernc.org/sqlite v1.45.0 (pure Go, Go 1.24 compatible), accepted with #6 and documented in ADR 0002.
 - Commercial provider for scheduled flights: evaluate in M3; no paid provider is required for today's commands.
 - Alpha JSON/exit-code contract: #5 merged; watchlist operations extend it through WATCHLISTS.md.
 

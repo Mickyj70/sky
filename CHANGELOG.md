@@ -30,3 +30,9 @@ Only actual releases receive versioned sections. The CLI currently reports 0.1.0
 - Consistent snapshot backup and validated, atomic, non-overwriting restore into a new directory.
 - Persistence/restart, duplicate/concurrent-write, failure, unsupported-schema, WAL backup and recovery tests.
 - SQLite driver decision and watchlist JSON/recovery documentation. Polling remains a separate task.
+
+### Fixed
+
+- Provider lookups reject redirects without changing caller-owned HTTP client configuration.
+- Opening an existing watchlist validates it through a read transaction, so readers do not unnecessarily contend for the writer lock. Fresh initialization still rechecks schema under an immediate transaction.
+- Added redirect and concurrent-reader/initialization regression tests plus an architecture/dependency guide.

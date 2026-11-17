@@ -154,7 +154,47 @@ func checkIdentity(app, version int) error {
 	}
 	return nil
 }
+
+// Existing supported databases only need a deferred read transaction. The
+// driver bypasses _txlock=immediate for ReadOnly transactions, leaving ordinary
+// readers independent of another connection's reserved writer lock.
+func needsInitialization(ctx context.Context, db *sql.DB) (bool, error) {
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+	app, version, err := identity(ctx, tx)
+	if err != nil {
+		return false, err
+	}
+	if app == 0 && version == 0 {
+		return true, nil
+	}
+	if err := checkIdentity(app, version); err != nil {
+		return false, err
+	}
+	if err := validateColumns(ctx, tx); err != nil {
+		return false, err
+	}
+	return false, tx.Commit()
+}
+
+func validateColumns(ctx context.Context, q rowsQuerier) error {
+	rows, err := q.QueryContext(ctx, "SELECT kind,identifier,created_at FROM watch_targets LIMIT 0")
+	if err != nil {
+		return err
+	}
+	return rows.Close()
+}
+
 func initialize(ctx context.Context, db *sql.DB) error {
+	needed, err := needsInitialization(ctx, db)
+	if err != nil || !needed {
+		return err
+	}
+	// Release the read snapshot before obtaining an immediate write transaction.
+	// Another opener may initialize first, so recheck identity under the lock.
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -187,11 +227,9 @@ func initialize(ctx context.Context, db *sql.DB) error {
 		return err
 	}
 	// Detect missing tables/columns before exposing a store to writers.
-	rows, err := tx.QueryContext(ctx, "SELECT kind,identifier,created_at FROM watch_targets LIMIT 0")
-	if err != nil {
+	if err := validateColumns(ctx, tx); err != nil {
 		return err
 	}
-	rows.Close()
 	return tx.Commit()
 }
 

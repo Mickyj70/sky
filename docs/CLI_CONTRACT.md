@@ -123,7 +123,7 @@ Failures are `*provider.Error`, usable through `errors.As`:
 - `Unwrap()`: preserves context/network/body-read causes for `errors.Is` / `As`.
 
 The CLI enforces `--timeout` using a request context and makes one provider call.
-There are no implicit retries. Embedders should use `cli.Execute` with a constructed
+There are no implicit retries. Redirects are not followed, including same-origin redirects; their HTTP statuses are rejected-provider failures (exit 5). This prevents additional redirect requests and redirect credential forwarding. Embedders should use `cli.Execute` with a constructed
 command and `cli.ExitCode` to retain parsing-versus-runtime classification.
 
 ## Verification and rollback
