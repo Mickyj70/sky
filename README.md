@@ -96,6 +96,7 @@ Data source: [adsb.lol API](https://www.adsb.lol/docs/open-data/api), published 
 
 ## Project direction and progress
 
+- [Architecture and Go packages](docs/ARCHITECTURE.md): components, dependencies, and planned tracking boundary.
 - [Roadmap](docs/ROADMAP.md): milestones, deliverables, dependencies, and completion criteria.
 - [Current status](docs/STATUS.md): what works, current focus, open decisions, and next steps.
 - [Initial backlog](docs/BACKLOG.md): issue-ready tasks for GitHub.
