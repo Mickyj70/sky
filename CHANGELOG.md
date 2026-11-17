@@ -22,3 +22,11 @@ Only actual releases receive versioned sections. The CLI currently reports 0.1.0
 - Invalid/oversized provider responses fail explicitly; unknown readings remain absent.
 - Offline HTTP fixtures, cancellation/error-boundary coverage, subprocess stream/exit checks, and real-binary entrypoint checks.
 - Checked-in desired main-branch protection configuration; applying it remains blocked by repository administration permissions.
+
+### Added
+
+- Offline `watch add`, `list`, and `remove` with normalized unique targets in versioned SQLite storage.
+- Platform data directories, `SKY_DATA_DIR`, and `watch --data-dir` override.
+- Consistent snapshot backup and validated, atomic, non-overwriting restore into a new directory.
+- Persistence/restart, duplicate/concurrent-write, failure, unsupported-schema, WAL backup and recovery tests.
+- SQLite driver decision and watchlist JSON/recovery documentation. Polling remains a separate task.

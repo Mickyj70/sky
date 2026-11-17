@@ -64,11 +64,24 @@ Each invocation makes one request. There is no automatic polling or retry loop. 
 
 See the [CLI/JSON/error contract](docs/CLI_CONTRACT.md) for field types, exit codes, provider failures, and alpha compatibility.
 
+## Saved watchlists
+
+```sh
+sky watch add --registration G-ZBKE
+sky watch add --hex 406d7b
+sky watch list --json
+sky watch remove --registration G-ZBKE
+```
+
+Targets persist locally without provider calls. See [watchlists and safe backup/restore](docs/WATCHLISTS.md) for data locations, overrides and recovery. Continuous polling is planned separately; `watch run` is not implemented yet.
+
 ## Scope
 
 Implemented: aircraft and callsign lookup, nearby search, regional operator filtering, JSON output, timeout and rate-limit handling, interrupt cancellation.
 
-Next: persisted watchlists and quota-aware polling; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
+
+Next: quota-aware polling; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
 
 ## Development
 

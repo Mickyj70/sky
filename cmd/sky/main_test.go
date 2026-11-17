@@ -173,3 +173,36 @@ func TestBinaryEntrypoint(t *testing.T) {
 		}
 	}
 }
+
+func TestWatchPersistenceAcrossProcesses(t *testing.T) {
+	binary, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(t.TempDir(), "watch-data")
+	for i, args := range [][]string{
+		{"watch", "add", "--registration", "G-ZBKE", "--data-dir", dir, "--json"},
+		{"watch", "list", "--data-dir", dir, "--json"},
+		{"watch", "remove", "--registration", "G-ZBKE", "--data-dir", dir, "--json"},
+		{"watch", "list", "--data-dir", dir, "--json"},
+	} {
+		child := exec.Command(binary, append([]string{"-test.run=^TestProcessHelper$", "--"}, args...)...)
+		child.Env = append(os.Environ(), "SKY_PROCESS_HELPER=1", "SKY_TEST_URL=http://127.0.0.1:1")
+		var out, stderr bytes.Buffer
+		child.Stdout = &out
+		child.Stderr = &stderr
+		if err := child.Run(); err != nil || stderr.Len() != 0 {
+			t.Fatalf("%v: %v %s", args, err, stderr.String())
+		}
+		var result map[string]any
+		if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+			t.Fatal(err)
+		}
+		if i == 1 && len(result["targets"].([]any)) != 1 {
+			t.Fatal("saved target did not survive process exit")
+		}
+		if i == 3 && len(result["targets"].([]any)) != 0 {
+			t.Fatal("removal did not survive process exit")
+		}
+	}
+}

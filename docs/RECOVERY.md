@@ -60,18 +60,18 @@ Until release binaries exist, build the desired tested tag in a separate worktre
 
 An older binary may not understand a newer database. Code rollback and data rollback are separate operations.
 
-## Data recovery (required before M1 ships)
+## Watchlist data recovery
 
-Today the CLI has no persistent application database. Before introducing one:
+Issue #6 introduces schema-versioned SQLite watchlists. See [WATCHLISTS.md](WATCHLISTS.md) for paths, backup commands, restore and compatibility details.
 
-1. Stop the tracking process before filesystem-level backups or restoration, or use SQLite's supported online backup mechanism.
-2. Create a verified pre-migration backup with the schema/app versions recorded; do not copy only the main `.db` file from a running WAL database.
-3. Run migrations transactionally where possible. Do not silently apply a destructive downgrade.
-4. On failure, preserve the failed database for diagnosis, restore a compatible backup to a separate location, and validate it before replacing the active copy.
-5. State that restoring an older backup loses observations collected after that backup. Export what can be preserved first.
-6. Verify these steps against the actual chosen driver and schema before marking persistence complete.
+1. Run `sky watch backup /path/to/new-backup.db`; use a new filename. The command uses SQLite's consistent snapshot mechanism, including committed WAL data, validates the result and syncs the copy.
+2. Keep the backup outside the repository, with a separate durable copy where needed. Git tags do not contain your database or credentials.
+3. Restore with `sky watch restore /path/to/backup.db --data-dir /path/to/new-directory`.
+4. Verify with `sky watch list --data-dir /path/to/new-directory --json` before selecting it through `--data-dir` or `SKY_DATA_DIR`.
+5. Keep the original watchlist. The command refuses an existing destination database/sidecar instead of overwriting it. Restoring an older snapshot loses changes made after that snapshot in the recovered copy.
+6. Use a binary that supports the backup's schema. Unknown applications and unsupported versions are refused; no silent downgrade is attempted. Future migrations must add pre-migration backups and their own compatibility tests.
 
-Backups must live outside the Git repository and should have a separate durable copy if the data matters. Never commit credentials or database contents as a substitute for backups.
+Do not copy only the main `.db` file from a running WAL database. Restore requires a hard-link-capable filesystem for atomic no-overwrite publication. A killed restore can leave a hidden `.sky-restore-*.db` staging file; it does not replace your active database. Inspect any leftover staging files before removing them.
 
 ## Release checklist
 
