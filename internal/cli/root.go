@@ -95,11 +95,15 @@ func newCommand(baseURL string) *cobra.Command {
 		var lat, lon, radius float64
 		var airborne bool
 		use, short := "nearby", "Find observed aircraft around coordinates"
+		long := ""
+		example := "  sky nearby --lat 6.58 --lon 3.32 --radius-km 100\n  sky nearby --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json"
 		if airline {
 			use = "airline ICAO_CODE"
 			short = "Filter nearby traffic by a three-letter operator callsign prefix"
+			long = "Show aircraft observed in the requested region whose broadcast callsigns begin with the given three-letter ICAO operator prefix."
+			example = "  sky airline BAW --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json"
 		}
-		cmd := &cobra.Command{Use: use, Short: short, Args: cobra.NoArgs}
+		cmd := &cobra.Command{Use: use, Short: short, Long: long, Example: example, Args: cobra.NoArgs}
 		if airline {
 			cmd.Args = cobra.ExactArgs(1)
 		}

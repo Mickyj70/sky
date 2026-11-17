@@ -35,6 +35,30 @@ func TestInvalidInput(t *testing.T) {
 	}
 }
 
+func TestCoordinateHelpExamples(t *testing.T) {
+	cases := []struct {
+		command string
+		want    string
+	}{
+		{"nearby", "sky nearby --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json"},
+		{"airline", "sky airline BAW --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.command, func(t *testing.T) {
+			cmd := New()
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetArgs([]string{tc.command, "--help"})
+			if err := cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(out.String(), tc.want) {
+				t.Errorf("help is missing the example %q", tc.want)
+			}
+		})
+	}
+}
+
 func TestRenderMissingVersusZero(t *testing.T) {
 	zero := 0.0
 	r := provider.Result{Source: "adsb.lol", RetrievedAt: time.Unix(0, 0).UTC(), Aircraft: []provider.Aircraft{{Hex: "abc123", Altitude: json.RawMessage(`"ground"`), Speed: &zero, Seen: &zero}}}

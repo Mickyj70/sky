@@ -38,10 +38,10 @@ sky callsign BAW123
 
 # Coordinates are required; radius is in kilometres (default 100, max 463)
 sky nearby --lat 6.58 --lon 3.32 --radius-km 100
-sky nearby --lat 51.47 --lon -0.45 --airborne --json
+sky nearby --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json
 
 # Observed operator activity within an area, using a three-letter ICAO prefix
-sky airline BAW --lat 51.47 --lon -0.45 --radius-km 100 --airborne
+sky airline BAW --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json
 
 # Optional provider API key; no key is embedded in the binary
 export SKY_API_KEY='your-key'
