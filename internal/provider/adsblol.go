@@ -67,7 +67,13 @@ func (c *Client) fetch(ctx context.Context, path string) (Result, error) {
 	if client == nil {
 		client = &http.Client{Timeout: 15 * time.Second}
 	}
-	resp, err := client.Do(req)
+	// Reject redirects at the provider boundary. Clone caller-owned configuration so
+	// redirect rejection also applies to injected clients without mutating them.
+	requestClient := *client
+	requestClient.CheckRedirect = func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	resp, err := requestClient.Do(req)
 	if err != nil {
 		return result, transportError("request aircraft data", err)
 	}

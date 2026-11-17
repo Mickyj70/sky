@@ -1,7 +1,7 @@
 # CLI and provider contract (alpha)
 
 Applies to aircraft-result commands: `plane`, `callsign`, `nearby`, and `airline`.
-This contract is implemented by the issue #5 change. It does not add scheduled
+The aircraft-result contract was introduced by issue #5. Local `watch` management has a separate [watchlist contract](WATCHLISTS.md). This contract does not add scheduled
 flight lookup, recurring polling, persistence, or automatic retries.
 
 ## Invocation and output
@@ -123,7 +123,7 @@ Failures are `*provider.Error`, usable through `errors.As`:
 - `Unwrap()`: preserves context/network/body-read causes for `errors.Is` / `As`.
 
 The CLI enforces `--timeout` using a request context and makes one provider call.
-There are no implicit retries. Embedders should use `cli.Execute` with a constructed
+There are no implicit retries. Redirects are not followed, including same-origin redirects; their HTTP statuses are rejected-provider failures (exit 5). This prevents additional redirect requests and redirect credential forwarding. Embedders should use `cli.Execute` with a constructed
 command and `cli.ExitCode` to retain parsing-versus-runtime classification.
 
 ## Verification and rollback
