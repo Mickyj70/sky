@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-17. Current focus: **Architecture fixes before M1 polling, issue #7**. Remaining owner settings stay tracked separately in #4.
+Updated: 2026-11-19. Current focus: **M1 polling, issue #7**.
 
 ## Repository and progress
 
@@ -34,8 +34,9 @@ Updated: 2026-11-17. Current focus: **Architecture fixes before M1 polling, issu
 | Projects board / merge settings | Optional owner preferences | Merged branches auto-delete; all merge methods remain allowed; Projects access is unavailable to integration |
 | Output contract and additional fixtures | Merged | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
 | Persistent watchlists and recovery | Merged in PR #16 | #6; see WATCHLISTS.md and ADR 0002 |
-| Architecture fixes | Implemented on `fix/architecture-redirects-and-read-locks`; review pending | Redirect policy and nonblocking read validation; see ARCHITECTURE.md |
-| Polling scheduler and tracking output | Not started | #7–#9; depend on acceptance of watchlist storage |
+| Architecture fixes | Merged in PR #17 | Redirect policy and nonblocking read validation; see ARCHITECTURE.md |
+| Polling scheduler | Implemented | #7; fake-clock tests cover request budgets, provider cooldowns, backoff and cancellation |
+| Tracking output and release validation | Planned | #8 and #9 |
 | History, commercial flight data, releases | Not started | M2–M5 |
 
 ## Verification
@@ -53,10 +54,10 @@ Updated: 2026-11-17. Current focus: **Architecture fixes before M1 polling, issu
 
 ## Next work
 
-1. Owner verifies the exact active PR/check requirements against `.github/branch-protection.json` to finish #4. Branch protection and private reporting are now active; no broader credential needs to be pasted into chat.
-2. Review the redirect/read-lock architecture fixes after checks pass. Issue #6 merged in PR #16; issue #5 merged in PR #14.
-3. Implement scheduler #7 after the architecture fixes are accepted, then watch output #8 and release validation #9.
-4. Review Windows contributor documentation in PR #15 separately; #10 is complete.
+1. Review and merge the [scheduler change for #7](https://github.com/Mickyj70/sky/issues/7) after CI passes.
+2. Connect the scheduler to the CLI and define observation events in [#8](https://github.com/Mickyj70/sky/issues/8).
+3. Validate and tag saved tracking in [#9](https://github.com/Mickyj70/sky/issues/9).
+4. Windows contributor documentation remains in the separate PR #15 for #11.
 
 ## Open technical decisions
 
