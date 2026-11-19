@@ -29,7 +29,8 @@ Only actual releases receive versioned sections. The CLI currently reports 0.1.0
 - Platform data directories, `SKY_DATA_DIR`, and `watch --data-dir` override.
 - Consistent snapshot backup and validated, atomic, non-overwriting restore into a new directory.
 - Persistence/restart, duplicate/concurrent-write, failure, unsupported-schema, WAL backup and recovery tests.
-- SQLite driver decision and watchlist JSON/recovery documentation. Polling remains a separate task.
+- SQLite driver decision and watchlist JSON/recovery documentation.
+- Internal polling scheduler with deduplicated targets, per-run request budgets, provider cooldowns, bounded backoff, and cancellation. CLI integration is planned for #8.
 
 ### Fixed
 

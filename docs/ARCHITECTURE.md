@@ -62,10 +62,16 @@ A new database is initialized in an immediate write transaction. Identity/schema
 
 Backups use SQLite snapshots. Restore validates and imports into a staged database, then publishes without overwriting an existing destination. File-system hard-link support is required. See WATCHLISTS and RECOVERY for the exact data contracts and recovery limitations.
 
-## Next component: tracking (planned)
+## Tracking scheduler
 
-Issue #7 should introduce `internal/tracking` to own scheduling, request budgets, deduplication, provider cooldowns and cancellation. Inject its clock and consume `provider.Source` plus a small target-reading interface. Cobra should configure this service and render its output, keeping scheduling rules out of command callbacks.
+`internal/tracking` accepts a snapshot of saved targets and an injectable clock and provider. It normalizes and deduplicates identifiers by kind, preserving input order. A registration and a hex address remain separate until the tool can resolve them to the same aircraft.
+
+Each run requires a positive interval and request budget. The first cycle starts immediately, and later cycles start no sooner than one interval after the previous cycle started. Each attempt consumes one unit, including failures. The plan exposes the full-cycle cost before the first lookup, and each attempt exposes the remaining allowance. A run ends as soon as it exhausts the budget, even partway through a cycle.
+
+Rate limits, temporary failures, and timeouts pause the entire run until both the provider’s Retry-After deadline and the local backoff have elapsed. The local backoff doubles from one second up to one minute and resets on success. Polling resumes with the next target in sequence. Other provider errors, cancellation, and output failures stop the run.
+
+Issue #8 will connect this scheduler to `watch run` and define observation state and terminal and JSON output.
 
 Before introducing a second provider, separate provider wire DTOs from typed internal observations. Current result fields intentionally preserve the alpha JSON contract, including raw altitude number/ground/unknown representation. Shared identifier rules can also replace duplicated validation once that domain boundary is introduced.
 
-Watchlist persistence is implemented. Automatic polling, stored aircraft history, and a hosted service remain separate roadmap work.
+Stored aircraft history and a hosted service remain separate roadmap work.
