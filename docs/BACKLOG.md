@@ -15,9 +15,9 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 
 ## Delivery snapshot — 2026-11-20
 
-- Complete: #4 foundation, #5 contracts, #6 watchlists, #7 scheduler, #10 command examples, and architecture fixes in PR #17.
-- Current: #8 live command/state/output, reopened because the command was absent from main despite a completed issue state.
-- Next: #9 full tracking/recovery/release validation.
+- Complete: #4 foundation, #5 contracts, #6 watchlists, #7 scheduler, #8 live command/state/output, #10 command examples, and architecture fixes in PR #17.
+- Current: #9 clean-source tracking/recovery validation and source candidate `v0.2.0-rc.1`.
+- Next: candidate review, then split M2 history and migration work into scoped issues.
 - Parallel review: #11 Windows guide in PR #15.
 - Later: M2–M5 work packages below; split into implementation issues when ready.
 

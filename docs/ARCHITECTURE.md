@@ -17,6 +17,7 @@ flowchart LR
 
 | Package | Responsibility |
 | --- | --- |
+| `internal/version` | Canonical source release identity shared by CLI and HTTP user agent |
 | `cmd/sky` | Assemble the command, handle process cancellation, select stdout/stderr and return an exit status |
 | `internal/cli` | Parse/validate arguments, call providers/storage, filter results and render tables/JSON |
 | `internal/provider` | Query/result interface, adsb.lol adapter, response validation, typed errors and cooldown metadata |

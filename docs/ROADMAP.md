@@ -12,9 +12,9 @@ The first usable product is a CLI. A hosted service becomes a separate decision 
 
 The Go CLI implements aircraft registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, table/JSON output, typed errors and cancellation. Persistent SQLite watchlists, non-overwriting snapshot recovery and the architecture fixes have merged. PR #18 merged the bounded, fake-clock-tested polling scheduler.
 
-The current work is issue #8: connect the scheduler to `watch run` with observation states, plain-text output, NDJSON events and repeat suppression. This implementation is on `feat/8-watch-observation-output` pending review. Issue #8 was marked completed without the command existing in main; it was reopened on 2026-11-20 so acceptance follows implemented behavior.
+PR #19 merged `watch run`, observation states, plain text and NDJSON output. Current work is issue #9: clean-source validation, recovery/downgrade evidence and source candidate `v0.2.0-rc.1`. The canonical CLI/provider version is now aligned with this candidate. The tag is created only after validation; it is not a stable release or a set of prebuilt binaries.
 
-Not yet complete: M1 release/recovery validation (#9), persistent observation history, exports, complete airline fleets, dated commercial flight status, notifications, prebuilt releases or stable 1.0 compatibility. The hardcoded CLI version is still 0.1.0; target version numbers below are not published releases.
+Persistent observation history, exports, complete airline fleets, dated commercial flight status, notifications and distribution remain future milestones.
 
 | Work | Status | Evidence / next action |
 | --- | --- | --- |
@@ -23,8 +23,8 @@ Not yet complete: M1 release/recovery validation (#9), persistent observation hi
 | Saved targets and backup/restore | Complete | PR #16; #6 closed |
 | Redirect/read-lock fixes | Complete | PR #17 |
 | Polling scheduler and request budgets | Complete | PR #18; #7 closed |
-| Live observation states/output | Current implementation, review pending | #8; WATCH_RUN.md |
-| Saved-tracking release validation | Next | #9, after #8 merges |
+| Live observation states/output | Complete | #8 / PR #19; WATCH_RUN.md |
+| Saved-tracking release validation | Current | #9; RELEASE_VALIDATION.md |
 | Windows contributor guide | Parallel review | PR #15; #11 still open |
 | History, commercial context and distribution | Planned | M2–M5 below |
 
@@ -64,9 +64,9 @@ Current status: the core foundation is complete. #4, #5 and #10 are closed; bran
 
 ### M1 — Saved tracking
 
-Current status: storage/recovery (#6) and the scheduler (#7) have merged. Observation output (#8) is the current change; end-to-end release validation (#9) follows. See WATCH_RUN.md for the proposed live-command contract.
+Current status: storage/recovery (#6), scheduler (#7) and observation output (#8) have merged. Release validation (#9) is current. See RELEASE_VALIDATION.md for the repeatable acceptance checks and WATCH_RUN.md for the implemented contract.
 
-Implemented saved-target commands and the live command in the current #8 change:
+Implemented saved-target and live commands:
 
 ```sh
 sky watch add --registration G-VBEL

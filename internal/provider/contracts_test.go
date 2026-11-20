@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Mickyj70/sky/internal/version"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -33,6 +34,9 @@ func TestLookupQueries(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path != tc.path {
 					t.Errorf("got path %s, want %s", r.URL.Path, tc.path)
+				}
+				if r.Header.Get("User-Agent") != version.UserAgent {
+					t.Error("provider user agent does not match release identity")
 				}
 				if r.Header.Get("Accept") != "application/json" {
 					t.Error("missing JSON accept header")

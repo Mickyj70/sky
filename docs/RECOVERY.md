@@ -73,6 +73,12 @@ Issue #6 introduces schema-versioned SQLite watchlists. See [WATCHLISTS.md](WATC
 
 Do not copy only the main `.db` file from a running WAL database. Restore requires a hard-link-capable filesystem for atomic no-overwrite publication. A killed restore can leave a hidden `.sky-restore-*.db` staging file; it does not replace your active database. Inspect any leftover staging files before removing them.
 
+## Candidate validation and schema-1 compatibility
+
+The source candidate `v0.2.0-rc.1` uses schema 1. Its [release validator](RELEASE_VALIDATION.md) builds clean source snapshots, exercises real command processes and verifies two-way reads/writes and recovery with the earlier `checkpoint/watchlists-review-2026-11-17`. Use the [candidate notes](releases/v0.2.0-rc.1.md) for limits and install instructions once its tag is published.
+
+This compatibility evidence applies to the recorded checkpoint and schema, not every past/future binary. It does not replace backups. Earlier checkpoints may lack `watch run`; preserve the current binary and check old command support before downgrading. Restore into a new directory and inspect the saved targets before switching.
+
 ## Release checklist
 
 - [ ] Acceptance criteria met; changelog and STATUS updated.
@@ -81,5 +87,5 @@ Do not copy only the main `.db` file from a running WAL database. Restore requir
 - [ ] Backup/restore and downgrade procedure exercised for data changes.
 - [ ] Version metadata matches the intended tag; binary smoke checks pass.
 - [ ] Release notes name limitations and the prior compatible version.
-- [ ] Annotated release tag and checksum-verified assets published.
+- [ ] Annotated tested candidate/release tag pushed; publish verified checksums when binary assets are distributed (M4).
 - [ ] Main and tags pushed; recovery point available off-machine.

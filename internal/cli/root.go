@@ -17,6 +17,7 @@ import (
 
 	"github.com/Mickyj70/sky/internal/provider"
 	"github.com/Mickyj70/sky/internal/tracking"
+	"github.com/Mickyj70/sky/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 	root := &cobra.Command{
 		Use: "sky", Short: "Track observed aircraft from your terminal",
 		Long:    "Sky looks up observed aircraft using adsb.lol.\nPositions may be missing or stale; no observation does not mean landed.\nData: adsb.lol, ODbL 1.0 — https://www.adsb.lol/docs/open-data/api",
-		Version: "0.1.0", SilenceErrors: true, SilenceUsage: true,
+		Version: version.Version, SilenceErrors: true, SilenceUsage: true,
 	}
 	root.PersistentFlags().BoolVar(&asJSON, "json", false, "Write structured JSON instead of a table")
 	root.PersistentFlags().DurationVar(&timeout, "timeout", 15*time.Second, "HTTP request timeout")
