@@ -72,6 +72,9 @@ def main():
     match = re.search(r"go version go(\d+)\.(\d+)", go_version)
     require(match is not None and tuple(map(int, match.groups())) >= (1, 24),
             "The selected executable must be Go 1.24 or newer")
+    # Source archives intentionally have no repository metadata. Do not let Go
+    # discover an unrelated/inaccessible parent .git directory when building.
+    os.environ["GOFLAGS"] = (os.environ.get("GOFLAGS", "") + " -buildvcs=false").strip()
     commits = {}
     for name, ref in (("candidate", args.candidate_ref), ("baseline", args.baseline_ref)):
         commit = run(["git", "rev-parse", "--verify", ref + "^{commit}"], repo).stdout.strip()
