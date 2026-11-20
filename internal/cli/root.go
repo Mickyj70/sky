@@ -150,7 +150,7 @@ func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 		}
 		return cmd
 	}
-	root.AddCommand(plane, callsign, area(false), area(true), watchCommand(&asJSON, source, &timeout, clock))
+	root.AddCommand(historyCommand(&asJSON), plane, callsign, area(false), area(true), watchCommand(&asJSON, source, &timeout, clock))
 	return root
 }
 

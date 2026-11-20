@@ -16,8 +16,9 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 ## Delivery snapshot — 2026-11-20
 
 - Complete: #4 foundation, #5 contracts, #6 watchlists, #7 scheduler, #8 live command/state/output, #10 command examples, and architecture fixes in PR #17.
-- Current: #9 clean-source tracking/recovery validation and source candidate `v0.2.0-rc.1`.
-- Next: candidate review, then split M2 history and migration work into scoped issues.
+- Complete: #9 release/recovery validation in PR #20 and published source candidate `v0.2.0-rc.1`.
+- Current: [#21](https://github.com/Mickyj70/sky/issues/21), M2 opt-in observation recording, dedupe, retention and independent recovery.
+- Next: [#22](https://github.com/Mickyj70/sky/issues/22), offline history queries, explicit pruning and CSV/JSON export.
 - Parallel review: #11 Windows guide in PR #15.
 - Later: M2–M5 work packages below; split into implementation issues when ready.
 
@@ -81,8 +82,8 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 
 | ID | Milestone | Work package | Acceptance evidence |
 | --- | --- | --- | --- |
-| M2-01 | M2 | Observation storage, dedupe, retention | Replay, disk retention, migration and recovery tests |
-| M2-02 | M2 | History queries and CSV/JSON export | Offline fixture queries and export comparison |
+| M2-01 (#21) | M2 | Observation storage, dedupe, retention and independent recovery | Replay, disk retention, migration and recovery tests |
+| M2-02 (#22) | M2 | History queries, explicit pruning and CSV/JSON export | Offline fixture queries and export comparison |
 | M3-01 | M3 | Commercial provider evaluation and budget decision | Recorded feature/coverage/cost/rights comparison with official sources |
 | M3-02 | M3 | Dated flights and airline code resolution | Date reuse, codeshare and missing-field fixtures |
 | M4-01 | M4 | Versioned platform builds and checksums | Build matrix and install smoke evidence |

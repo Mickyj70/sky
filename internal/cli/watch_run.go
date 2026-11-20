@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/Mickyj70/sky/internal/history"
 	"github.com/Mickyj70/sky/internal/provider"
 	"github.com/Mickyj70/sky/internal/storage"
 	"github.com/Mickyj70/sky/internal/tracking"
@@ -30,25 +32,34 @@ func (s timedSource) Lookup(ctx context.Context, q provider.Query) (provider.Res
 }
 
 type watchEvent struct {
-	Type              string                `json:"type"`
-	At                time.Time             `json:"at"`
-	Observation       *tracking.Observation `json:"observation,omitempty"`
-	RequestsPerCycle  int                   `json:"requests_per_cycle"`
-	RequestsRemaining int                   `json:"requests_remaining"`
-	RequestsUsed      int                   `json:"requests_used"`
-	IntervalSeconds   float64               `json:"interval_seconds,omitempty"`
-	StaleAfterSeconds float64               `json:"stale_after_seconds,omitempty"`
-	Reason            string                `json:"reason,omitempty"`
+	Type                    string                `json:"type"`
+	At                      time.Time             `json:"at"`
+	Observation             *tracking.Observation `json:"observation,omitempty"`
+	RequestsPerCycle        int                   `json:"requests_per_cycle"`
+	RequestsRemaining       int                   `json:"requests_remaining"`
+	RequestsUsed            int                   `json:"requests_used"`
+	IntervalSeconds         float64               `json:"interval_seconds,omitempty"`
+	StaleAfterSeconds       float64               `json:"stale_after_seconds,omitempty"`
+	HistoryDatabase         string                `json:"history_database,omitempty"`
+	HistoryRetentionSeconds float64               `json:"history_retention_seconds,omitempty"`
+	Reason                  string                `json:"reason,omitempty"`
 }
 
 func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duration, clock tracking.Clock, open func(*cobra.Command) (*storage.Store, error)) *cobra.Command {
-	var interval, staleAfter time.Duration
+	var interval, staleAfter, retention time.Duration
+	var record bool
 	var maxRequests int
 	command := &cobra.Command{Use: "run", Short: "Poll saved targets with a finite request budget; stop when this process exits", Args: cobra.NoArgs,
-		Example: "  sky watch run --interval 5m --max-requests 100\n  sky watch run --interval 5m --max-requests 10 --stale-after 1m --json",
+		Example: "  sky watch run --interval 5m --max-requests 100\n  sky watch run --interval 5m --max-requests 10 --stale-after 1m --json\n  sky watch run --interval 5m --max-requests 10 --record --history-retention 168h",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if interval <= 0 || maxRequests <= 0 || staleAfter <= 0 || *timeout <= 0 {
 				return fmt.Errorf("interval, max-requests, stale-after and timeout must be positive")
+			}
+			if retention <= 0 {
+				return fmt.Errorf("history-retention must be positive")
+			}
+			if cmd.Flags().Changed("history-retention") && !record {
+				return fmt.Errorf("history-retention requires --record")
 			}
 			if source == nil {
 				return &executionError{fmt.Errorf("watch requires a provider")}
@@ -57,6 +68,7 @@ func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duratio
 			if err != nil {
 				return err
 			}
+			dataDir := filepath.Dir(store.Path())
 			saved, readErr := store.List(cmd.Context())
 			closeErr := store.Close()
 			if readErr != nil {
@@ -77,6 +89,14 @@ func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duratio
 			if err != nil {
 				return err
 			}
+			var archive *history.Store
+			if record {
+				archive, err = history.Open(cmd.Context(), dataDir)
+				if err != nil {
+					return &executionError{err}
+				}
+				defer archive.Close()
+			}
 			budget := scheduler.Plan()
 			now := func() time.Time {
 				if clock != nil {
@@ -95,6 +115,10 @@ func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duratio
 				return watchEvent{Type: kind, At: at, RequestsPerCycle: budget.RequestsPerCycle, RequestsRemaining: budget.RequestsRemaining, RequestsUsed: maxRequests - budget.RequestsRemaining}
 			}
 			started := event("started", now())
+			if archive != nil {
+				started.HistoryDatabase = archive.Path()
+				started.HistoryRetentionSeconds = retention.Seconds()
+			}
 			started.IntervalSeconds = interval.Seconds()
 			started.StaleAfterSeconds = staleAfter.Seconds()
 			if err := write(started); err != nil {
@@ -106,6 +130,11 @@ func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duratio
 				observation, changed, err := observer.Observe(attempt)
 				if err != nil {
 					return err
+				}
+				if archive != nil && observation.Failure == nil {
+					if _, err := archive.Record(cmd.Context(), observation, retention); err != nil {
+						return fmt.Errorf("record history: %w", err)
+					}
 				}
 				if changed {
 					kind := "observation"
@@ -152,6 +181,8 @@ func watchRunCommand(asJSON *bool, source provider.Source, timeout *time.Duratio
 			}
 			return nil
 		}}
+	command.Flags().BoolVar(&record, "record", false, "Save successful lookup snapshots in local history.db")
+	command.Flags().DurationVar(&retention, "history-retention", 30*24*time.Hour, "Keep first local snapshot encounters for this duration while recording")
 	command.Flags().DurationVar(&interval, "interval", 5*time.Minute, "Minimum interval between cycle starts")
 	command.Flags().IntVar(&maxRequests, "max-requests", 0, "Required per-run lookup budget, including failed attempts")
 	command.Flags().DurationVar(&staleAfter, "stale-after", time.Minute, "Position age threshold, evaluated at each completed lookup")
@@ -163,8 +194,14 @@ func renderWatchEvent(cmd *cobra.Command, event watchEvent) error {
 	out := cmd.OutOrStdout()
 	switch event.Type {
 	case "started":
-		_, err := fmt.Fprintf(out, "Watching %d unique target(s), %d requests per cycle. Budget: %d; interval: %gs; stale after: %gs.\nTargets are loaded once. Tracking stops when this process exits.\n", event.RequestsPerCycle, event.RequestsPerCycle, event.RequestsRemaining, event.IntervalSeconds, event.StaleAfterSeconds)
-		return err
+		if _, err := fmt.Fprintf(out, "Watching %d unique target(s), %d requests per cycle. Budget: %d; interval: %gs; stale after: %gs.\nTargets are loaded once. Tracking stops when this process exits.\n", event.RequestsPerCycle, event.RequestsPerCycle, event.RequestsRemaining, event.IntervalSeconds, event.StaleAfterSeconds); err != nil {
+			return err
+		}
+		if event.HistoryDatabase != "" {
+			_, err := fmt.Fprintf(out, "Recording successful snapshots: %s; retention: %gs.\n", event.HistoryDatabase, event.HistoryRetentionSeconds)
+			return err
+		}
+		return nil
 	case "observation", "provider_error":
 		observation := event.Observation
 		target := fmt.Sprintf("%s %s", observation.Target.Kind, observation.Target.Identifier)

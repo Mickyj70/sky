@@ -12,7 +12,7 @@ The first usable product is a CLI. A hosted service becomes a separate decision 
 
 The Go CLI implements aircraft registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, table/JSON output, typed errors and cancellation. Persistent SQLite watchlists, non-overwriting snapshot recovery and the architecture fixes have merged. PR #18 merged the bounded, fake-clock-tested polling scheduler.
 
-PR #19 merged `watch run`, observation states, plain text and NDJSON output. Current work is issue #9: clean-source validation, recovery/downgrade evidence and source candidate `v0.2.0-rc.1`. The canonical CLI/provider version is now aligned with this candidate. The tag is created only after validation; it is not a stable release or a set of prebuilt binaries.
+PR #19 merged `watch run`, observation states, plain text and NDJSON output. PR #20 completed #9: clean-source validation, recovery/downgrade evidence and published source candidate `v0.2.0-rc.1`. It is not a stable release or a set of prebuilt binaries. Current work is #21: opt-in local history recording and recovery, followed by #22 for offline queries/pruning/export. Development version is `0.3.0-dev`.
 
 Persistent observation history, exports, complete airline fleets, dated commercial flight status, notifications and distribution remain future milestones.
 
@@ -24,7 +24,9 @@ Persistent observation history, exports, complete airline fleets, dated commerci
 | Redirect/read-lock fixes | Complete | PR #17 |
 | Polling scheduler and request budgets | Complete | PR #18; #7 closed |
 | Live observation states/output | Complete | #8 / PR #19; WATCH_RUN.md |
-| Saved-tracking release validation | Current | #9; RELEASE_VALIDATION.md |
+| Saved-tracking release validation | Complete | #9 / PR #20; source candidate `v0.2.0-rc.1` |
+| Opt-in observation recording/recovery | Current | #21; HISTORY.md and ADR 0003 |
+| Offline history queries/pruning/export | Next | #22 |
 | Windows contributor guide | Parallel review | PR #15; #11 still open |
 | History, commercial context and distribution | Planned | M2–M5 below |
 
@@ -64,7 +66,7 @@ Current status: the core foundation is complete. #4, #5 and #10 are closed; bran
 
 ### M1 — Saved tracking
 
-Current status: storage/recovery (#6), scheduler (#7) and observation output (#8) have merged. Release validation (#9) is current. See RELEASE_VALIDATION.md for the repeatable acceptance checks and WATCH_RUN.md for the implemented contract.
+Current status: storage/recovery (#6), scheduler (#7) and observation output (#8) have merged. Release validation (#9 / PR #20) is complete with source candidate `v0.2.0-rc.1`. See RELEASE_VALIDATION.md for the repeatable acceptance checks and WATCH_RUN.md for the implemented contract.
 
 Implemented saved-target and live commands:
 
@@ -94,6 +96,8 @@ Exit criteria:
 - `watch run` clearly states that tracking stops when the process exits.
 
 ### M2 — Local history
+
+Current: #21 adds opt-in snapshot recording in a separate history database, replay dedupe, retention and independent backup/restore. #22 adds offline queries, explicit pruning and exports. See HISTORY.md and ADR 0003. No schema migration is introduced; future migrations require verified automatic pre-migration backups and transactional failure/recovery tests.
 
 Proposed commands:
 

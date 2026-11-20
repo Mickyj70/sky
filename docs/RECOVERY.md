@@ -89,3 +89,7 @@ This compatibility evidence applies to the recorded checkpoint and schema, not e
 - [ ] Release notes name limitations and the prior compatible version.
 - [ ] Annotated tested candidate/release tag pushed; publish verified checksums when binary assets are distributed (M4).
 - [ ] Main and tags pushed; recovery point available off-machine.
+
+## M2 history is independent
+
+`watch backup/restore` handles saved targets only. Opt-in observations live in `history.db`; use `history backup/restore` for those snapshots. Back up both when both matter. Restoring either does not modify the other, and the snapshots are not one cross-database transaction. M1 binaries ignore history and keep reading unchanged schema-1 watchlists. Future history migrations require automatic verified pre-migration backups and transactional failure/recovery tests before release. See [HISTORY.md](HISTORY.md) and [ADR 0003](decisions/0003-observation-history.md).

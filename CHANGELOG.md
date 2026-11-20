@@ -4,7 +4,16 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ## Unreleased
 
-Further changes will be recorded here after the first candidate.
+### Added
+
+- Opt-in `watch run --record` with durable local snapshot deduplication and configurable transactional retention (default 30 days).
+- Independent schema-1 `history.db`, offline status, verified backup and non-overwriting restore; saved-watchlist schema and M1 compatibility are unchanged.
+- History recording, retention failure, replay and recovery fixture tests and ADR 0003. No implicit schema migration is introduced.
+
+### Changed
+
+- Development CLI/provider identity is `0.3.0-dev`. The published `v0.2.0-rc.1` source candidate is unchanged.
+- Current M2 scope is recording and recovery; offline queries, explicit pruning and CSV/JSON export follow in #22.
 
 ## 0.2.0-rc.1 — 2026-11-20 (source candidate)
 

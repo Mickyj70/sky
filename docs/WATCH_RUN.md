@@ -69,3 +69,7 @@ Budget exhaustion is normal completion (exit 0), including a run whose recoverab
 Fake-clock tests cover state transitions, duplicate suppression, deterministic budget exhaustion, provider failures and cancellation. Subprocess tests verify NDJSON streams and real interrupt delivery during a wait. HTTP fixtures are local; tests do not consume live flight API quota.
 
 Revert the issue #8 change to remove `watch run` while retaining the saved-target commands and scheduler. There is no SQLite schema change; existing watchlist files and backups remain usable. Compatibility/release validation is issue #9.
+
+## Optional local recording (M2 development)
+
+Add `--record` to save successful lookup snapshots to independent `history.db` before repeat suppression; no additional provider requests are made. `--history-retention` accepts a positive duration (default `720h`) and requires recording when explicitly supplied. Recording starts only after validating a nonempty watchlist and a valid scheduler configuration. The started event includes optional `history_database` and `history_retention_seconds` fields when recording. A storage failure stops polling with reason `error` and a failing exit; provider failures remain live events and are not stored. History maintenance, exact replay identity and independent recovery are documented in [HISTORY.md](HISTORY.md).

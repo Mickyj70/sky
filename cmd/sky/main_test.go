@@ -169,7 +169,7 @@ func TestBinaryEntrypoint(t *testing.T) {
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build sky: %v\n%s", err, out)
 	}
-	for _, args := range [][]string{{"--help"}, {"--version"}, {"plane", "bad/id"}} {
+	for _, args := range [][]string{{"--help"}, {"--version"}, {"plane", "bad/id"}, {"history", "status", "--data-dir", t.TempDir(), "--json"}} {
 		child := exec.Command(binary, args...)
 		var stdout, stderr bytes.Buffer
 		child.Stdout = &stdout
@@ -341,5 +341,49 @@ func TestWatchRunInterruptDuringWait(t *testing.T) {
 	var exit *exec.ExitError
 	if !errors.As(err, &exit) || exit.ExitCode() != 130 || !interrupted || !stopped {
 		t.Fatalf("interrupt: err=%v interrupted=%v stopped=%v stderr=%s", err, interrupted, stopped, stderr.String())
+	}
+}
+
+func TestHistoryReplayAndRecoveryAcrossProcesses(t *testing.T) {
+	binary, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"ac":[],"now":1700000000000,"msg":"No error"}`)
+	}))
+	defer server.Close()
+	dir := t.TempDir()
+	recovered := t.TempDir()
+	snapshot := filepath.Join(t.TempDir(), "history-snapshot.db")
+	steps := [][]string{
+		{"watch", "add", "--registration", "G-TEST", "--data-dir", dir, "--json"},
+		{"watch", "run", "--record", "--max-requests", "1", "--data-dir", dir, "--json"},
+		{"watch", "run", "--record", "--max-requests", "1", "--data-dir", dir, "--json"},
+		{"history", "status", "--data-dir", dir, "--json"},
+		{"history", "backup", snapshot, "--data-dir", dir, "--json"},
+		{"history", "restore", snapshot, "--data-dir", recovered, "--json"},
+		{"history", "status", "--data-dir", recovered, "--json"},
+	}
+	for _, args := range steps {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		child := exec.CommandContext(ctx, binary, append([]string{"-test.run=^TestProcessHelper$", "--"}, args...)...)
+		child.Env = append(os.Environ(), "SKY_PROCESS_HELPER=1", "SKY_TEST_URL="+server.URL)
+		var out, stderr bytes.Buffer
+		child.Stdout = &out
+		child.Stderr = &stderr
+		err := child.Run()
+		cancel()
+		if err != nil || stderr.Len() != 0 {
+			t.Fatalf("%v: %v %s", args, err, stderr.String())
+		}
+		if args[0] == "history" && args[1] == "status" {
+			var stats struct {
+				Count int `json:"count"`
+			}
+			if err = json.Unmarshal(out.Bytes(), &stats); err != nil || stats.Count != 1 {
+				t.Fatalf("replay/recovery: %s %v", out.String(), err)
+			}
+		}
 	}
 }
