@@ -3,16 +3,19 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Mickyj70/sky/internal/provider"
+	"github.com/Mickyj70/sky/internal/tracking"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/Mickyj70/sky/internal/storage"
 	"github.com/spf13/cobra"
 )
 
-func watchCommand(asJSON *bool) *cobra.Command {
+func watchCommand(asJSON *bool, source provider.Source, timeout *time.Duration, clock tracking.Clock) *cobra.Command {
 	var dataDir string
-	watch := &cobra.Command{Use: "watch", Short: "Manage saved aircraft locally (no automatic polling yet)"}
+	watch := &cobra.Command{Use: "watch", Short: "Manage saved aircraft and bounded live tracking"}
 	watch.PersistentFlags().StringVar(&dataDir, "data-dir", "", "Watchlist data directory (overrides SKY_DATA_DIR and platform default)")
 	resolve := func(cmd *cobra.Command) (string, error) {
 		if cmd.Flags().Changed("data-dir") && strings.TrimSpace(dataDir) == "" {
@@ -187,6 +190,6 @@ func watchCommand(asJSON *bool) *cobra.Command {
 		}
 		return nil
 	}}
-	watch.AddCommand(mutation(false), mutation(true), list, backup, restore)
+	watch.AddCommand(mutation(false), mutation(true), list, backup, restore, watchRunCommand(asJSON, source, timeout, clock, open))
 	return watch
 }

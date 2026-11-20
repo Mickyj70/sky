@@ -49,6 +49,7 @@ type Budget struct {
 }
 
 type Attempt struct {
+	At     time.Time
 	Query  provider.Query
 	Result provider.Result
 	Err    error
@@ -150,7 +151,7 @@ func (s *Scheduler) Run(ctx context.Context, observe func(Attempt) error) error 
 		}
 
 		if observe != nil {
-			if err := observe(Attempt{Query: query, Result: result, Err: lookupErr, Budget: budget}); err != nil {
+			if err := observe(Attempt{At: s.clock.Now().UTC(), Query: query, Result: result, Err: lookupErr, Budget: budget}); err != nil {
 				return err
 			}
 		}

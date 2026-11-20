@@ -73,7 +73,14 @@ sky watch list --json
 sky watch remove --registration G-ZBKE
 ```
 
-Targets persist locally without provider calls. See [watchlists and safe backup/restore](docs/WATCHLISTS.md) for data locations, overrides and recovery. Continuous polling is planned separately; `watch run` is not implemented yet.
+Targets persist locally without provider calls. See [watchlists and safe backup/restore](docs/WATCHLISTS.md) for data locations, overrides and recovery. The live command uses a required finite request budget:
+
+```sh
+sky watch run --interval 5m --max-requests 100
+sky watch run --interval 5m --max-requests 10 --json
+```
+
+See [live watch output](docs/WATCH_RUN.md) for observation states, NDJSON events and per-run budget limits. Tracking stops when the process exits.
 
 ## Scope
 
@@ -81,7 +88,7 @@ Implemented: aircraft and callsign lookup, nearby search, regional operator filt
 
 Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
 
-Next: quota-aware polling; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Next: saved-tracking release validation; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
 
 ## Development
 

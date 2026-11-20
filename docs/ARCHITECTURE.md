@@ -9,6 +9,8 @@ flowchart LR
     A["cmd/sky: startup, signals and exit codes"] --> B["internal/cli: Cobra commands and output"]
     B --> C["provider.Source: query interface"]
     C --> D["adsb.lol HTTP adapter"]
+    B --> G["internal/tracking: scheduler and observation states"]
+    G --> C
     B --> E["internal/storage"]
     E --> F[("SQLite watchlist.db")]
 ```
@@ -18,6 +20,7 @@ flowchart LR
 | `cmd/sky` | Assemble the command, handle process cancellation, select stdout/stderr and return an exit status |
 | `internal/cli` | Parse/validate arguments, call providers/storage, filter results and render tables/JSON |
 | `internal/provider` | Query/result interface, adsb.lol adapter, response validation, typed errors and cooldown metadata |
+| `internal/tracking` | Bounded polling engine, injectable clock/provider, observation state and repeat suppression |
 | `internal/storage` | Identifier normalization, platform data paths, versioned SQLite watchlists and backup/restore |
 
 Live lookups do not require SQLite. Local watchlist operations do not call a provider or require API credentials. Registrations and hex addresses are separate saved targets until identity resolution is implemented.
@@ -70,7 +73,7 @@ Each run requires a positive interval and request budget. The first cycle starts
 
 Rate limits, temporary failures, and timeouts pause the entire run until both the provider’s Retry-After deadline and the local backoff have elapsed. The local backoff doubles from one second up to one minute and resets on success. Polling resumes with the next target in sequence. Other provider errors, cancellation, and output failures stop the run.
 
-Issue #8 will connect this scheduler to `watch run` and define observation state and terminal and JSON output.
+The issue #8 change connects this scheduler to `watch run` and adds an observation-state processor in `internal/tracking`. It classifies position freshness and suppresses repeated observations; the CLI renders plain text or NDJSON. The scheduler supplies completion timestamps from its injected clock. See WATCH_RUN.md for states, events, budget scope and stop behavior.
 
 Before introducing a second provider, separate provider wire DTOs from typed internal observations. Current result fields intentionally preserve the alpha JSON contract, including raw altitude number/ground/unknown representation. Shared identifier rules can also replace duplicated validation once that domain boundary is introduced.
 

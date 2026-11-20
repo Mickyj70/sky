@@ -13,6 +13,14 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 | M1-03 | [#8 — Watch output and observation state](https://github.com/Mickyj70/sky/issues/8) |
 | M1-04 | [#9 — Saved tracking release validation](https://github.com/Mickyj70/sky/issues/9) |
 
+## Delivery snapshot — 2026-11-20
+
+- Complete: #4 foundation, #5 contracts, #6 watchlists, #7 scheduler, #10 command examples, and architecture fixes in PR #17.
+- Current: #8 live command/state/output, reopened because the command was absent from main despite a completed issue state.
+- Next: #9 full tracking/recovery/release validation.
+- Parallel review: #11 Windows guide in PR #15.
+- Later: M2–M5 work packages below; split into implementation issues when ready.
+
 ## M0 — Foundation
 
 ### M0-01 — Publish repository and activate progress tracking (S)

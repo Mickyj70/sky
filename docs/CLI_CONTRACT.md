@@ -1,7 +1,7 @@
 # CLI and provider contract (alpha)
 
 Applies to aircraft-result commands: `plane`, `callsign`, `nearby`, and `airline`.
-The aircraft-result contract was introduced by issue #5. Local `watch` management has a separate [watchlist contract](WATCHLISTS.md). This contract does not add scheduled
+The aircraft-result contract was introduced by issue #5. Local `watch` management has a separate [watchlist contract](WATCHLISTS.md); continuous `watch run --json` uses [NDJSON events](WATCH_RUN.md), not a single result object. This contract does not add scheduled
 flight lookup, recurring polling, persistence, or automatic retries.
 
 ## Invocation and output
