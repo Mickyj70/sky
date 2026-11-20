@@ -37,3 +37,10 @@ Only actual releases receive versioned sections. The CLI currently reports 0.1.0
 - Provider lookups reject redirects without changing caller-owned HTTP client configuration.
 - Opening an existing watchlist validates it through a read transaction, so readers do not unnecessarily contend for the writer lock. Fresh initialization still rechecks schema under an immediate transaction.
 - Added redirect and concurrent-reader/initialization regression tests plus an architecture/dependency guide.
+
+### Added
+
+- Bounded `watch run` with interval, required request allowance, per-request timeout and configurable position staleness.
+- Observed/stale/missing/unknown states, meaningful-change suppression and NDJSON lifecycle/observation/error/progress events.
+- Cancellation and budget accounting through in-flight stops; offline state/CLI/subprocess and interrupt tests.
+- Current plan reconciled with merged PRs and remaining milestones; issue #8 completion tracked against the missing command implementation.

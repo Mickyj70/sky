@@ -1,70 +1,59 @@
 # Current project status
 
-Updated: 2026-11-19. Current focus: **M1 polling, issue #7**.
+Updated: 2026-11-20. Current focus: **issue #8 — live watch output and observation states**.
 
-## Repository and progress
+## What is complete
 
-- Public repository: [Mickyj70/sky](https://github.com/Mickyj70/sky); source license: MIT.
-- [Milestones M0–M5](https://github.com/Mickyj70/sky/milestones) track the delivery roadmap.
-- [Issues](https://github.com/Mickyj70/sky/issues) track implementation, acceptance criteria, dependencies and rollback notes.
-- Contributor tasks: help examples #10 merged in PR #13; Windows guidance #11 is under review in PR #15.
-- Progress uses status labels; a Projects board is optional and unavailable to the current integration.
-- No stable release or prebuilt release binaries exist. `go install github.com/Mickyj70/sky/cmd/sky@main` installs development code.
+| Work | Evidence |
+| --- | --- |
+| Public MIT-licensed Go repository, contribution workflow, CI and rollback checkpoints | Core foundation issue #4 closed; branch protection and private reporting verified active 2026-11-20 |
+| Live plane/callsign/nearby/regional airline lookups, JSON tables, typed errors and cancellation | #5 / PR #14; help examples #10 / PR #13 |
+| Saved SQLite watchlists, platform paths, idempotent mutations, snapshot backup and safe restore | #6 / PR #16 |
+| Redirect rejection and read validation without unnecessary writer-lock contention | PR #17 |
+| Bounded polling engine with injectable clock/provider, deduplication, cooldowns and backoff | #7 / PR #18, merged 2026-11-19 |
 
-## Baseline and recovery
+Merged baseline at the start of this task: `efb2ad8`.
 
-- Prototype: `b0ff308`, tag `checkpoint/prototype-2026-11-15`.
-- Planning foundation: `1fa4d1e`, tag `checkpoint/planning-2026-11-15`.
-- Public contributor foundation: `612bd45` (canonical Go module, MIT license, contributor/security guidance and Dependabot).
-- Public setup checkpoint: `checkpoint/open-source-2026-11-15` (created after the setup documentation is merged and checked).
-- Existing prototype/planning tags are pushed to GitHub. See RECOVERY for safe code reverts and future database recovery.
+## Current change
 
-## Progress
+Branch: `feat/8-watch-observation-output`.
 
-| Area | State | Evidence / remaining work |
-| --- | --- | --- |
-| Prototype | Done | Registration/hex/callsign lookup, nearby traffic, regional airline filtering, JSON/table output |
-| Public source and licensing | Done | Public repo, canonical module path, MIT code license; provider data terms are separate |
-| Contributor experience | Done | Fork/PR guidance, templates, code of conduct, security policy and two good first issues |
-| Roadmap and backlog | Published | Six milestones; initial M0–M1 issues linked from BACKLOG |
-| Automated checks | Hosted checks pass | [First successful CI run](https://github.com/Mickyj70/sky/actions/runs/43747116584) on Go 1.24.x and stable |
-| Dependency updates | Configured | Dependabot for Go modules and GitHub Actions; generated PRs still require review |
-| Main branch protection | Active, verified 2026-11-17 | `protected: true`; detailed rules remain unreadable to the integration (HTTP 403) |
-| Private vulnerability reporting | Enabled, verified 2026-11-17 | Owner-configured; private reporting route in SECURITY |
-| Projects board / merge settings | Optional owner preferences | Merged branches auto-delete; all merge methods remain allowed; Projects access is unavailable to integration |
-| Output contract and additional fixtures | Merged | [#5](https://github.com/Mickyj70/sky/issues/5); see CLI_CONTRACT.md |
-| Persistent watchlists and recovery | Merged in PR #16 | #6; see WATCHLISTS.md and ADR 0002 |
-| Architecture fixes | Merged in PR #17 | Redirect policy and nonblocking read validation; see ARCHITECTURE.md |
-| Polling scheduler | Implemented | #7; fake-clock tests cover request budgets, provider cooldowns, backoff and cancellation |
-| Tracking output and release validation | Planned | #8 and #9 |
-| History, commercial flight data, releases | Not started | M2–M5 |
+- Connect the merged scheduler to `watch run` with a required per-run request budget, interval, staleness threshold and per-request timeout.
+- Evaluate observed/stale/missing/unknown position states; never infer landed from missing coverage.
+- Suppress repeated observations/errors while keeping request progress visible.
+- Emit plain text or NDJSON lifecycle/observation/error/progress events.
+- Stop cleanly on exhaustion, cancellation, terminal provider failure or output failure.
+- Keep saved-target schema version 1 and existing live-lookup JSON behavior unchanged.
 
-## Verification
+Issue #8 was closed as completed even though main lacked `watch run`. It was reopened on 2026-11-20 while implementing the missing acceptance criteria. Completion will be linked to the implementation PR rather than inferred from an earlier issue state.
 
-- Issue #6: local race tests, vet and a CGO-disabled build passed; the real binary completed add/duplicate/list/backup/remove/restore/list across separate processes.
-- CGO-disabled cross-compilation passed for macOS arm64/amd64 and Windows amd64; native Linux amd64 build and tests passed. Cross-compilation does not establish runtime validation on those other systems.
-- Storage tests cover persistence, concurrent duplicate writers, failed/canceled writes, unrelated/newer schema refusal, WAL-aware snapshots, non-overwrite recovery and competing restores. Tests use temporary local databases and no provider calls.
+See [current roadmap](ROADMAP.md), [live watch contract](WATCH_RUN.md), [storage/recovery guide](WATCHLISTS.md), and [architecture](ARCHITECTURE.md).
 
-- Issue #5 branch: local race tests, vet, build, Markdown links and desired protection JSON checks pass. New provider fixtures and subprocess/binary checks require no live API calls. Hosted checks run on [PR #14](https://github.com/Mickyj70/sky/pull/14).
+## What remains, in order
 
-- Local `go test -race ./...`, `go vet ./...`, and binary build passed after changing to the public module path.
-- GitHub CI independently passed formatting, race tests, vet, build, and help smoke checks on both supported Go tracks.
-- Prototype recovery was demonstrated in a separate detached worktree without altering main.
-- Live provider smoke checks succeeded on 2026-11-15; provider calls are not required by CI and coverage is not guaranteed.
+1. Review/merge issue #8 and verify its live-command behavior locally.
+2. Complete issue #9: fresh-checkout walkthrough, backup/restore/downgrade evidence, quota/error scenarios, version/changelog alignment and a tested 0.2.0 release candidate.
+3. M2: locally collected observation history, dedupe, retention, queries and CSV/JSON export; add migration/backup compatibility before schema changes.
+4. M3: select a commercial flight-status provider/budget and implement dated flights, airline code resolution and codeshares. Provider rights and coverage need verification first.
+5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
+6. M5: stable 1.0 contracts, compatibility/deprecation policy, operational guidance and demonstrated recovery.
 
-## Next work
+Parallel work: Windows PowerShell contributor instructions are still open in issue #11 / PR #15. This does not block the watch implementation.
 
-1. Review and merge the [scheduler change for #7](https://github.com/Mickyj70/sky/issues/7) after CI passes.
-2. Connect the scheduler to the CLI and define observation events in [#8](https://github.com/Mickyj70/sky/issues/8).
-3. Validate and tag saved tracking in [#9](https://github.com/Mickyj70/sky/issues/9).
-4. Windows contributor documentation remains in the separate PR #15 for #11.
+## Operational limits
 
-## Open technical decisions
+- The watch request budget is per foreground run, not a shared account/IP daily quota. Restarts, other processes and unrelated commands can spend additional requests.
+- Targets are loaded once per run. Editing the saved list requires restarting to reload it.
+- Position states describe data freshness at each poll. They do not establish scheduled flight status.
+- There is no persistent aircraft observation history, background daemon, external alerting or stable binary release yet.
+- Current direct dependencies are Cobra v1.10.2 and modernc.org/sqlite v1.45.0; Go 1.24+ remains required. No new dependency is needed for live output.
 
-- SQLite driver: modernc.org/sqlite v1.45.0 (pure Go, Go 1.24 compatible), accepted with #6 and documented in ADR 0002.
-- Commercial provider for scheduled flights: evaluate in M3; no paid provider is required for today's commands.
-- Alpha JSON/exit-code contract: #5 merged; watchlist operations extend it through WATCHLISTS.md.
+## Verification and checkpoints
 
-## Update protocol
+The implementation PR records current local/hosted check evidence. Prior milestones have race tests, vet, CGO-disabled build and local HTTP/SQLite fixtures. Cross-build evidence does not claim native runtime support on every target.
 
-Update this file in each progress PR with completed work, validation, next issue, and blockers. GitHub issues are the source of truth for active task status; BACKLOG retains the issue index and later work packages.
+Annotated `checkpoint/*` tags preserve tested source states. They do not contain local watchlists or credentials. SQLite backups and restore compatibility remain separate from Git rollback; see RECOVERY.md. Do not overwrite shared checkpoints or rewrite shared main history.
+
+## Progress maintenance
+
+GitHub issues/PRs are the acceptance source of truth; update this document with each substantial change. A merged scheduler does not by itself complete the CLI/output work. Target version numbers in the roadmap are plans until an actual release is validated and published.

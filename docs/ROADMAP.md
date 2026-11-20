@@ -1,6 +1,6 @@
 # Sky roadmap
 
-Status: draft delivery plan, grounded in the working prototype. Updated 2026-11-15.
+Status: active delivery plan, reconciled against merged code and GitHub issues. Updated 2026-11-20.
 
 ## Product goal
 
@@ -10,11 +10,25 @@ The first usable product is a CLI. A hosted service becomes a separate decision 
 
 ## Where we are
 
-The prototype implements registration and ICAO hex lookup, broadcast callsign lookup, nearby search, regional operator-prefix filtering, table/JSON output, timeout/cancellation, and basic upstream error handling. Unit and local HTTP integration tests exist. Live smoke checks succeeded on 2026-11-15; they do not guarantee continuous provider coverage.
+The Go CLI implements aircraft registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, table/JSON output, typed errors and cancellation. Persistent SQLite watchlists, non-overwriting snapshot recovery and the architecture fixes have merged. PR #18 merged the bounded, fake-clock-tested polling scheduler.
 
-Not implemented: saved watchlists, recurring polling, caching, historical storage, complete airline fleets, scheduled flight lookup, notifications, or installable releases. The hardcoded CLI version is 0.1.0; no versioned public release has been made.
+The current work is issue #8: connect the scheduler to `watch run` with observation states, plain-text output, NDJSON events and repeat suppression. This implementation is on `feat/8-watch-observation-output` pending review. Issue #8 was marked completed without the command existing in main; it was reopened on 2026-11-20 so acceptance follows implemented behavior.
 
-Prototype checkpoint: `checkpoint/prototype-2026-11-15`, commit `b0ff308`.
+Not yet complete: M1 release/recovery validation (#9), persistent observation history, exports, complete airline fleets, dated commercial flight status, notifications, prebuilt releases or stable 1.0 compatibility. The hardcoded CLI version is still 0.1.0; target version numbers below are not published releases.
+
+| Work | Status | Evidence / next action |
+| --- | --- | --- |
+| Public open-source foundation | Core complete | MIT, CI, issue tracking and checkpoints; #4 closed |
+| CLI contracts and helpful examples | Complete | PRs #14 and #13; #5 and #10 closed |
+| Saved targets and backup/restore | Complete | PR #16; #6 closed |
+| Redirect/read-lock fixes | Complete | PR #17 |
+| Polling scheduler and request budgets | Complete | PR #18; #7 closed |
+| Live observation states/output | Current implementation, review pending | #8; WATCH_RUN.md |
+| Saved-tracking release validation | Next | #9, after #8 merges |
+| Windows contributor guide | Parallel review | PR #15; #11 still open |
+| History, commercial context and distribution | Planned | M2–M5 below |
+
+Prototype checkpoint: `checkpoint/prototype-2026-11-15` (`b0ff308`). Later checkpoints are annotated Git tags; see RECOVERY for code and data rollback.
 
 ## Delivery sequence
 
@@ -46,11 +60,13 @@ Exit criteria:
 - The prototype can be checked out and built in a separate worktree using the recovery guide.
 - Current behavior is documented, including regional airline filtering and missing data.
 
-Current status: public repository, MIT licensing, contributor guidance, pushed checkpoints, hosted CI, initial issues, labels and all six milestones are set up. Owner-only branch protection/private-reporting settings remain in #4; contract hardening remains in #5. Projects is optional and currently permission-blocked.
+Current status: the core foundation is complete. #4, #5 and #10 are closed; branch protection and private reporting were verified active. Windows contributor documentation (#11 / PR #15) remains under review. A Projects board is optional; labels and milestones already track progress.
 
 ### M1 — Saved tracking
 
-Proposed commands:
+Current status: storage/recovery (#6) and the scheduler (#7) have merged. Observation output (#8) is the current change; end-to-end release validation (#9) follows. See WATCH_RUN.md for the proposed live-command contract.
+
+Implemented saved-target commands and the live command in the current #8 change:
 
 ```sh
 sky watch add --registration G-VBEL
@@ -65,7 +81,7 @@ Deliver:
 - An application config/data directory with platform-appropriate paths and an override for tests and automation.
 - SQLite storage for watchlist targets, uniqueness rules, schema versioning, and backup support.
 - One polling scheduler that deduplicates targets and enforces a user-selected request budget.
-- Explicit accounting for how many upstream calls each cycle needs; pause when the budget is exhausted.
+- Explicit accounting for how many upstream calls each cycle needs; stop when the per-run budget is exhausted.
 - Handling of Retry-After in both seconds and HTTP-date form, bounded backoff, interrupt cancellation, and transient failures.
 - Change events based on observations; missing coverage must not generate a definitive landed event.
 - A documented freshness policy for new, stale, and missing observations.
@@ -73,7 +89,7 @@ Deliver:
 Exit criteria:
 
 - Watchlists survive restarts; duplicate targets cannot create duplicate scheduled requests.
-- A fake clock and local provider prove polling stays within budget, respects 429 cooldowns, and stops cleanly.
+- A fake clock and local provider prove polling stays within its per-run budget, respects 429 cooldowns, and stops cleanly. Shared account/IP daily limits are a separate provider constraint.
 - Interrupted writes preserve the last valid watchlist; backup and recovery are exercised.
 - `watch run` clearly states that tracking stops when the process exits.
 

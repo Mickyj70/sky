@@ -1,6 +1,6 @@
 # Saved watchlists
 
-Watchlist management is implemented by issue #6. These commands save targets locally and do not query a flight-data provider. Automatic polling and `watch run` belong to issues #7–#8 and are not available yet.
+Watchlist management is implemented by issue #6. These commands save targets locally and do not query a flight-data provider. The scheduler merged in #7; live `watch run` output is implemented by the current #8 change. See [WATCH_RUN.md](WATCH_RUN.md) for bounded polling, states and NDJSON events.
 
 ## Add, list and remove
 

@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/Mickyj70/sky/internal/provider"
+	"github.com/Mickyj70/sky/internal/tracking"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +30,9 @@ func New() *cobra.Command {
 
 // NewWithSource allows embedding and offline integration tests without a
 // production environment override that could send API credentials elsewhere.
-func NewWithSource(source provider.Source) *cobra.Command {
+func NewWithSource(source provider.Source) *cobra.Command { return newWithClock(source, nil) }
+
+func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 	var asJSON bool
 	var timeout time.Duration
 	root := &cobra.Command{
@@ -146,7 +149,7 @@ func NewWithSource(source provider.Source) *cobra.Command {
 		}
 		return cmd
 	}
-	root.AddCommand(plane, callsign, area(false), area(true), watchCommand(&asJSON))
+	root.AddCommand(plane, callsign, area(false), area(true), watchCommand(&asJSON, source, &timeout, clock))
 	return root
 }
 
