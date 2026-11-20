@@ -7,13 +7,15 @@ A Go CLI for observed aircraft, nearby traffic, and regional airline activity us
 
 ## Source release candidate
 
-The first candidate is **v0.2.0-rc.1**, pending its tested tag in the release-preparation change. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
+The published first source candidate is **v0.2.0-rc.1**. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
 
-Once the tag exists, install with Go 1.24+:
+Install the source candidate with Go 1.24+:
 
 ```sh
 go install github.com/Mickyj70/sky/cmd/sky@v0.2.0-rc.1
 ```
+
+The candidate does not include the M2 recording commands below. Build the development branch after the recording PR merges.
 
 ## Install the development version
 
@@ -98,7 +100,7 @@ Implemented: aircraft and callsign lookup, nearby search, regional operator filt
 
 Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
 
-Next: candidate feedback and final M1 acceptance; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Current development adds opt-in SQLite snapshot recording (see [history](docs/HISTORY.md)); offline queries and exports follow next, then a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
 
 ## Development
 
@@ -134,3 +136,13 @@ Please follow our [Code of Conduct](CODE_OF_CONDUCT.md). Report vulnerabilities 
 ## License
 
 Sky source code is licensed under [MIT](LICENSE). Flight data has separate provider terms, including adsb.lol's ODbL 1.0; MIT does not relicense upstream data.
+
+## Record observations locally (development)
+
+```sh
+sky watch run --interval 5m --max-requests 10 --record
+sky history status
+sky history backup ./history-snapshot.db
+```
+
+Requires saved targets. Recording is opt-in, stores successful snapshots in a separate `history.db`, and defaults to 30-day retention applied during successful recording. It does not add provider requests. History queries and exports are planned in #22. See [HISTORY.md](docs/HISTORY.md) for replay identity, retention limits, licensing and independent backup/restore.
