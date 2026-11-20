@@ -5,6 +5,16 @@
 
 A Go CLI for observed aircraft, nearby traffic, and regional airline activity using [adsb.lol](https://www.adsb.lol/).
 
+## Source release candidate
+
+The first candidate is **v0.2.0-rc.1**, pending its tested tag in the release-preparation change. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
+
+Once the tag exists, install with Go 1.24+:
+
+```sh
+go install github.com/Mickyj70/sky/cmd/sky@v0.2.0-rc.1
+```
+
 ## Install the development version
 
 Requires Go 1.24 or newer:
@@ -88,7 +98,7 @@ Implemented: aircraft and callsign lookup, nearby search, regional operator filt
 
 Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
 
-Next: saved-tracking release validation; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Next: candidate feedback and final M1 acceptance; SQLite observation history; a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
 
 ## Development
 
@@ -108,11 +118,12 @@ Data source: [adsb.lol API](https://www.adsb.lol/docs/open-data/api), published 
 - [Current status](docs/STATUS.md): what works, current focus, open decisions, and next steps.
 - [Initial backlog](docs/BACKLOG.md): issue-ready tasks for GitHub.
 - [GitHub setup](docs/GITHUB.md): repository, milestones, board, and required checks.
+- [Release validation](docs/RELEASE_VALIDATION.md): clean-source checks, schema compatibility, and candidate procedure.
 - [Recovery guide](docs/RECOVERY.md): checkpoints, safe reverts, and future database recovery.
 - [Contributing](CONTRIBUTING.md): branch/PR workflow and verification.
 - [Changelog](CHANGELOG.md) and [architecture decisions](docs/decisions/0001-local-go-cli.md).
 
-The current implementation is a prototype. Track work in [issues](https://github.com/Mickyj70/sky/issues) and [milestones](https://github.com/Mickyj70/sky/milestones). No stable release has been published.
+The current implementation is pre-release software. Track work in [issues](https://github.com/Mickyj70/sky/issues) and [milestones](https://github.com/Mickyj70/sky/milestones). No stable release has been published.
 
 ## Contributing
 

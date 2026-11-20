@@ -1,46 +1,38 @@
 # Changelog
 
-Only actual releases receive versioned sections. The CLI currently reports 0.1.0 as a prototype identifier; no public release has been published.
+Version numbers identify source release candidates/releases; prototype checkpoints are listed in Git history. The first source candidate is `v0.2.0-rc.1`; no stable release or prebuilt release binaries are published by this change.
 
 ## Unreleased
 
+Further changes will be recorded here after the first candidate.
+
+## 0.2.0-rc.1 — 2026-11-20 (source candidate)
+
 ### Added
 
-- Go/Cobra CLI with registration/ICAO hex lookup, callsign lookup, nearby search, and regional airline callsign filtering.
-- Table and JSON output including provider snapshot/retrieval timestamps and missing-reading handling.
-- API key configuration, timeout/cancellation, rate-limit errors, and local HTTP tests.
-- Roadmap, initial backlog, current status, architectural decision, contribution/recovery guidance, and GitHub CI/issue/PR templates.
-- Local Git checkpoints for the working prototype and planning foundation.
-
-- MIT code license, public contribution/security policies, fork workflow, Dependabot, and canonical GitHub module path.
+- Go/Cobra commands for registration/ICAO hex and callsign lookup, nearby traffic and regional airline-prefix activity.
+- Table/JSON lookup output, UTC snapshot/retrieval times, typed provider errors, timeouts and cancellation.
+- Persistent schema-1 SQLite watchlists with normalized unique targets, platform data paths, idempotent mutations and JSON output.
+- Consistent SQLite snapshot backups and validated restore into a new directory without overwriting data.
+- Quota-aware foreground scheduler with finite per-run allowances, deduplication, cooldowns, bounded backoff and injectable time/provider interfaces.
+- `watch run` plain text/NDJSON events, observed/stale/missing/unknown states, meaningful-change suppression and accurate stop accounting.
+- Open-source contributor/security policies, architecture/roadmap/recovery documentation, checkpoints, CI and dependency update configuration.
+- Clean-source release validation with real-binary persistence/recovery, fixture polling/error/cancellation coverage and schema-1 baseline compatibility checks.
 
 ### Changed
 
-- Query-based injectable provider boundary, with endpoint construction isolated from CLI commands.
-- Typed provider errors and Retry-After deadlines for future bounded polling.
-- Detailed exit codes and an explicit alpha JSON contract (provider field names retained).
-- Invalid/oversized provider responses fail explicitly; unknown readings remain absent.
-- Offline HTTP fixtures, cancellation/error-boundary coverage, subprocess stream/exit checks, and real-binary entrypoint checks.
-- Checked-in desired main-branch protection configuration; applying it remains blocked by repository administration permissions.
-
-### Added
-
-- Offline `watch add`, `list`, and `remove` with normalized unique targets in versioned SQLite storage.
-- Platform data directories, `SKY_DATA_DIR`, and `watch --data-dir` override.
-- Consistent snapshot backup and validated, atomic, non-overwriting restore into a new directory.
-- Persistence/restart, duplicate/concurrent-write, failure, unsupported-schema, WAL backup and recovery tests.
-- SQLite driver decision and watchlist JSON/recovery documentation.
-- Internal polling scheduler with deduplicated targets, per-run request budgets, provider cooldowns, bounded backoff, and cancellation. CLI integration is planned for #8.
+- Canonical `internal/version` identity sets both CLI version and HTTP user agent to `0.2.0-rc.1`.
+- Lookup and watch-stream JSON/exit contracts are documented separately.
 
 ### Fixed
 
-- Provider lookups reject redirects without changing caller-owned HTTP client configuration.
-- Opening an existing watchlist validates it through a read transaction, so readers do not unnecessarily contend for the writer lock. Fresh initialization still rechecks schema under an immediate transaction.
-- Added redirect and concurrent-reader/initialization regression tests plus an architecture/dependency guide.
+- Provider redirects are rejected without mutating caller-owned client settings.
+- Existing watchlists are validated through deferred reads; only fresh initialization reserves the writer lock.
+- Missing/zero readings stay distinct; invalid or oversized provider responses fail explicitly.
 
-### Added
+### Compatibility and limits
 
-- Bounded `watch run` with interval, required request allowance, per-request timeout and configurable position staleness.
-- Observed/stale/missing/unknown states, meaningful-change suppression and NDJSON lifecycle/observation/error/progress events.
-- Cancellation and budget accounting through in-flight stops; offline state/CLI/subprocess and interrupt tests.
-- Current plan reconciled with merged PRs and remaining milestones; issue #8 completion tracked against the missing command implementation.
+- Requires Go 1.24+; normal builds are CGO-free. Race tests need the usual supported C toolchain.
+- No schema migration from the earlier schema-1 watchlist checkpoint.
+- Request allowances are per foreground run, not shared provider daily quotas.
+- Source candidate only; prebuilt binaries, stored observation history and stable 1.0 guarantees remain future work.

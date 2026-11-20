@@ -22,6 +22,7 @@ import (
 	"github.com/Mickyj70/sky/internal/cli"
 	"github.com/Mickyj70/sky/internal/provider"
 	"github.com/Mickyj70/sky/internal/storage"
+	"github.com/Mickyj70/sky/internal/version"
 )
 
 // The helper runs the production application runner in another OS process.
@@ -174,6 +175,9 @@ func TestBinaryEntrypoint(t *testing.T) {
 		child.Stdout = &stdout
 		child.Stderr = &stderr
 		err := child.Run()
+		if args[0] == "--version" && strings.TrimSpace(stdout.String()) != "sky version "+version.Version {
+			t.Fatalf("binary version mismatch: %q", stdout.String())
+		}
 		if args[0] == "plane" {
 			var exit *exec.ExitError
 			if !errors.As(err, &exit) || exit.ExitCode() != 2 || stdout.Len() != 0 {

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Mickyj70/sky/internal/version"
 	"io"
 	"net"
 	"net/http"
@@ -59,7 +60,7 @@ func (c *Client) fetch(ctx context.Context, path string) (Result, error) {
 		return result, &Error{Kind: Rejected, Message: "create request: " + err.Error(), Cause: err}
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "sky-cli/0.1.0")
+	req.Header.Set("User-Agent", version.UserAgent)
 	if c.APIKey != "" {
 		req.Header.Set("x-api-key", c.APIKey)
 	}
