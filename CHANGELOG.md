@@ -4,7 +4,7 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ## Unreleased
 
-Further changes will be recorded here after the M2 candidate.
+- M3 provider desk evaluation and ADR 0004 record the owner's $0/month evaluation-only decision, adoption gates and next offline model issue #28. No provider is selected and no runtime/data/dependency changes are introduced.
 
 ## 0.3.0-rc.1 — 2026-11-21 (source candidate preparation)
 
