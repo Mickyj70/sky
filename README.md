@@ -7,7 +7,7 @@ A Go CLI for observed aircraft, nearby traffic, and regional airline activity us
 
 ## Source release candidate
 
-The published first source candidate is **v0.2.0-rc.1**. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
+The published M1 source candidate is **v0.2.0-rc.1**. M2 source candidate **v0.3.0-rc.1** is being prepared with [history/recovery notes](docs/releases/v0.3.0-rc.1.md) and native cross-version validation. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
 
 Install the source candidate with Go 1.24+:
 
@@ -15,7 +15,7 @@ Install the source candidate with Go 1.24+:
 go install github.com/Mickyj70/sky/cmd/sky@v0.2.0-rc.1
 ```
 
-The candidate does not include the M2 recording commands below. Build the development branch after the recording PR merges.
+The M1 candidate does not include the M2 history commands below. The development branch includes recording/query/export; the M2 source candidate will include them once tagged.
 
 ## Install the development version
 
@@ -149,7 +149,7 @@ Requires saved targets. Recording is opt-in, stores successful snapshots in a se
 
 ### Query and export local history (development)
 
-After the history query/export PR merges, update and rebuild the development branch:
+History recording/query/export has merged. Update and rebuild the development branch:
 
 ```sh
 sky history --registration G-ZBKE --since 24h --json

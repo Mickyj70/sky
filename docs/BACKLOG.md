@@ -18,8 +18,9 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 - Complete: #4 foundation, #5 contracts, #6 watchlists, #7 scheduler, #8 live command/state/output, #10 command examples, and architecture fixes in PR #17.
 - Complete: #9 release/recovery validation in PR #20 and published source candidate `v0.2.0-rc.1`.
 - Complete: #21 / PR #23, M2 recording, dedupe, retention and recovery.
-- Current: [#22](https://github.com/Mickyj70/sky/issues/22), offline history queries, explicit pruning and CSV/JSON export.
-- Next: [#24](https://github.com/Mickyj70/sky/issues/24), M2 cross-version recovery/release acceptance and a tested source candidate.
+- Complete: #22 / PR #25, offline queries/pruning/export.
+- Current: [#24](https://github.com/Mickyj70/sky/issues/24), M2 cross-version recovery/release acceptance and source candidate `v0.3.0-rc.1`.
+- Next: candidate feedback and M3 provider evaluation before integration.
 - Parallel review: #11 Windows guide in PR #15.
 - Later: M2–M5 work packages below; split into implementation issues when ready.
 

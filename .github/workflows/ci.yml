@@ -43,7 +43,7 @@ jobs:
         run: ./bin/sky --help
 
   release-validation:
-    name: M1 release validation
+    name: M1 and M2 release validation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -54,7 +54,7 @@ jobs:
         with:
           go-version: '1.24.x'
           cache: true
-      - name: Validate clean source and schema-1 recovery
+      - name: Validate clean source, watchlists and history recovery
         run: python3 scripts/validate_release.py --report "$RUNNER_TEMP/release-validation.json"
       - name: Preserve validation evidence
         uses: actions/upload-artifact@v7.0.2

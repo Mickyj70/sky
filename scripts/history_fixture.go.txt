@@ -1,0 +1,55 @@
+// Synthetic release-validation writer. Copied only into temporary source
+// archives after production binaries/tests are built; never linked into Sky.
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/Mickyj70/sky/internal/history"
+	"github.com/Mickyj70/sky/internal/provider"
+	"github.com/Mickyj70/sky/internal/tracking"
+)
+
+func main() {
+	if err := write(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+func write() error {
+	if len(os.Args) != 4 {
+		return fmt.Errorf("usage: fixture DIRECTORY RFC3339 TARGET")
+	}
+	at, err := time.Parse(time.RFC3339Nano, os.Args[2])
+	if err != nil {
+		return err
+	}
+	target := tracking.Target{Kind: provider.ByRegistration, Identifier: os.Args[3]}
+	if strings.HasPrefix(target.Identifier, "hex:") {
+		target.Kind = provider.ByHex
+		target.Identifier = strings.TrimPrefix(target.Identifier, "hex:")
+	}
+	s, err := history.Open(context.Background(), os.Args[1])
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	snapshot := at.Add(-time.Second)
+	zero, age := 0.0, 1.0
+	observation := tracking.Observation{
+		At: at, Target: target, State: tracking.Observed, PositionAgeSeconds: &age,
+		Result: &provider.Result{Source: "adsb.lol", RetrievedAt: at, SnapshotAt: &snapshot, Aircraft: []provider.Aircraft{{Hex: "abc123", Registration: "G-TEST", Callsign: "TEST1", Altitude: json.RawMessage(`"ground"`), Speed: &zero, Latitude: &zero, Longitude: &zero, PositionSeen: &zero}}},
+	}
+	changed, err := s.Record(context.Background(), observation, 720*time.Hour)
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(os.Stdout).Encode(struct {
+		Changed bool `json:"changed"`
+	}{changed})
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate committed source and schema-1 recovery without live provider calls."""
 import argparse
+import hashlib
 import datetime
 import io
 import json
@@ -13,6 +14,10 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+
+# The release runner leaves no generated files in the working checkout.
+sys.dont_write_bytecode = True
+from validate_history import validate_history
 
 
 def run(args, cwd, env=None, expected=0):
@@ -63,6 +68,7 @@ def main():
     parser.add_argument("--go", default=shutil.which("go"))
     parser.add_argument("--candidate-ref", default="HEAD")
     parser.add_argument("--baseline-ref", default="checkpoint/watchlists-review-2026-11-17")
+    parser.add_argument("--history-baseline-ref", default="97d6db1776c3ebbd3712dff770ebfaf23e40a5f2")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
     require(args.go is not None, "Go 1.24+ is required; pass --go /path/to/go")
@@ -76,7 +82,8 @@ def main():
     # discover an unrelated/inaccessible parent .git directory when building.
     os.environ["GOFLAGS"] = (os.environ.get("GOFLAGS", "") + " -buildvcs=false").strip()
     commits = {}
-    for name, ref in (("candidate", args.candidate_ref), ("baseline", args.baseline_ref)):
+    for name, ref in (("candidate", args.candidate_ref), ("baseline", args.baseline_ref),
+                      ("history_baseline", args.history_baseline_ref)):
         commit = run(["git", "rev-parse", "--verify", ref + "^{commit}"], repo).stdout.strip()
         require(re.fullmatch(r"[0-9a-f]{40,64}", commit), "Invalid source commit")
         commits[name] = commit
@@ -84,13 +91,16 @@ def main():
         "validated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "candidate_ref": args.candidate_ref, "candidate_commit": commits["candidate"],
         "baseline_ref": args.baseline_ref, "baseline_commit": commits["baseline"],
+        "history_baseline_ref": args.history_baseline_ref,
+        "history_baseline_commit": commits["history_baseline"],
         "go": go_version, "platform": platform.system(), "architecture": platform.machine(),
         "checks": [],
         "limits": [
             "Native runtime validation applies only to the recorded platform.",
             "Polling/errors/cancellation use local fixtures in the Go tests, not live provider quota.",
-            "Compatibility is proven against the named schema-1 checkpoint, not every past/future binary.",
-            "The baseline is an unreleased source checkpoint, not a previous stable release.",
+            "Compatibility is proven against the named watchlist/history baselines, not every past/future binary.",
+            "History fixtures are synthetic, generated through each revision API by separate temporary writers.",
+            "Both baselines are unreleased source checkpoints, not previous stable releases.",
         ],
     }
 
@@ -103,6 +113,14 @@ def main():
         candidate, baseline = root / "candidate", root / "baseline"
         archive(repo, commits["candidate"], candidate)
         archive(repo, commits["baseline"], baseline)
+        history_baseline = root / "history-baseline"
+        archive(repo, commits["history_baseline"], history_baseline)
+        report["validator_sha256"] = {}
+        for name in ("validate_release.py", "validate_history.py"):
+            source = (candidate / "scripts" / name).read_bytes()
+            require(source == (repo / "scripts" / name).read_bytes(),
+                    "Validation scripts must match the committed candidate; commit or select matching source")
+            report["validator_sha256"][name] = hashlib.sha256(source).hexdigest()
         version_text = (candidate / "internal/version/version.go").read_text()
         version_match = re.search(r'const Version = "([^"]+)"', version_text)
         require(version_match is not None, "Candidate lacks a canonical version")
@@ -183,6 +201,11 @@ def main():
         require(cli(current, new_recovery, "list")["targets"] == saved,
                 "Candidate cannot restore a baseline-generated snapshot")
         passed("schema-1 downgrade/re-upgrade reads/writes and two-way snapshot recovery")
+        old_history = root / ("sky-history-baseline" + suffix)
+        run([compiler, "build", "-o", old_history, "./cmd/sky"], history_baseline, env=env)
+        validate_history(root, candidate, history_baseline, compiler, env,
+                         current, old_history, run, require, passed, report)
+    report["completed_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     report["status"] = "passed"
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
