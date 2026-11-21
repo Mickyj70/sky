@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **issue #24 — M2 recovery validation and source candidate**.
+Updated: 2026-11-21. Current focus: **issue #27 — M3 provider evaluation ($0, evaluation only)**.
 
 ## What is complete
 
@@ -14,28 +14,30 @@ Updated: 2026-11-21. Current focus: **issue #24 — M2 recovery validation and s
 | M1 clean-source and schema-1 recovery validation, source candidate | #9 / PR #20, merged 2026-11-20; `v0.2.0-rc.1` |
 | Opt-in snapshot recording, durable dedupe/retention and independent history recovery | #21 / PR #23, merged 2026-11-20 |
 | Offline queries, paginated JSON/CSV export and preview/apply pruning | #22 / PR #25, merged 2026-11-21 |
+| M2 native cross-version recovery validation and source candidate | #24 / PR #26, merged 2026-11-21; `v0.3.0-rc.1` |
 | Bounded polling engine with injectable clock/provider, deduplication, cooldowns and backoff | #7 / PR #18, merged 2026-11-19 |
 
-Merged baseline: `748eaf3` (PR #25). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
+Merged baseline: `f949090` (PR #26). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
 
 ## Current change
 
-Branch: `release/0.3.0-rc.1`; issue #24.
+Branch: `docs/m3-provider-evaluation`; issue #27.
 
-- Clean-source candidate and two earlier watchlist/history baselines, with exact source/toolchain/fixture identity in a machine-readable report.
-- Native two-way history snapshots, read/write/replay compatibility, export parity, pruning and post-prune recovery.
-- Verify database independence, no-overwrite guards and refusal of unsupported/corrupt recovery data.
-- Prepare source-only `v0.3.0-rc.1`; publish its immutable tag only after CI and validation. No stable release or prebuilt assets.
-- Schemas stay at 1 and dependencies are unchanged. No migration is introduced.
+- Official-source comparison of FlightAware, aviationstack and Aviation Edge: plan/date capability, recurring cost, quota/billing unit and data rights.
+- Owner budget confirmed **$0/month; evaluation only**. No subscriptions, account setup, provider API calls, keys or vendor outreach.
+- Commercial adoption deferred; actual sample coverage and applicable storage/export permissions remain unverified.
+- Next free implementation is #28: provider-neutral dated-flight model with synthetic fixtures, no live adapter/command.
+
+See [provider evaluation](PROVIDER_EVALUATION.md) and [ADR 0004](decisions/0004-flight-status-provider.md).
 
 See [history guide](HISTORY.md), [history decision](decisions/0003-observation-history.md), [watch contract](WATCH_RUN.md), and [architecture](ARCHITECTURE.md).
 
 ## What remains, in order
 
-1. Review #24's release validation and source candidate preparation; finish tested tag publication.
-2. Merge the release preparation and gather M2 candidate feedback before a stable 0.3.0 decision.
-3. Scope M3 provider evaluation before integration. Any future schema migration requires a verified automatic pre-migration backup, transactional migration and failure/downgrade tests before shipping.
-4. M3: select a commercial flight-status provider/budget and implement dated flights, airline code resolution and codeshares. Provider rights and coverage need verification first.
+1. Review/merge #27's provider evaluation and no-spend adoption policy.
+2. Implement #28: offline dated-flight model, service dates/timezones, operating/marketing identities, legs and ambiguity fixtures.
+3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
+4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
 6. M5: stable 1.0 contracts, compatibility/deprecation policy, operational guidance and demonstrated recovery.
 

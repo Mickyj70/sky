@@ -12,9 +12,9 @@ The first usable product is a CLI. A hosted service becomes a separate decision 
 
 The Go CLI implements aircraft registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, table/JSON output, typed errors and cancellation. Persistent SQLite watchlists, non-overwriting snapshot recovery and the architecture fixes have merged. PR #18 merged the bounded, fake-clock-tested polling scheduler.
 
-PR #19 merged `watch run`, observation states, plain text and NDJSON output. PR #20 completed #9: clean-source validation, recovery/downgrade evidence and published source candidate `v0.2.0-rc.1`. It is not a stable release or a set of prebuilt binaries. PR #23 completed #21 recording/recovery. PR #25 completed #22 queries/pruning/export. Current work is #24: cross-version history release validation and source candidate `v0.3.0-rc.1`.
+PR #19 merged `watch run`, observation states, plain text and NDJSON output. PR #20 completed #9: clean-source validation, recovery/downgrade evidence and published source candidate `v0.2.0-rc.1`. It is not a stable release or a set of prebuilt binaries. PR #23 completed #21 recording/recovery. PR #25 completed #22 queries/pruning/export. PR #26 completed #24 and published source candidate `v0.3.0-rc.1`. Current work is #27: M3 provider desk evaluation; owner budget is $0, evaluation only. #28 is the next offline domain-model slice.
 
-Observation recording/recovery is merged; query/export has merged. M2 release validation (#24), complete airline fleets, dated commercial flight status, notifications and distribution remain ahead.
+Observation recording/recovery is merged; query/export has merged. M2 candidate feedback, complete airline fleets, dated commercial flight status, notifications and distribution remain ahead.
 
 | Work | Status | Evidence / next action |
 | --- | --- | --- |
@@ -27,7 +27,9 @@ Observation recording/recovery is merged; query/export has merged. M2 release va
 | Saved-tracking release validation | Complete | #9 / PR #20; source candidate `v0.2.0-rc.1` |
 | Opt-in observation recording/recovery | Complete | #21 / PR #23; HISTORY.md and ADR 0003 |
 | Offline history queries/pruning/export | Complete | #22 / PR #25 |
-| M2 recovery/release validation | Current | #24; source candidate `v0.3.0-rc.1` |
+| M2 recovery/release validation | Complete | #24 / PR #26; `v0.3.0-rc.1` |
+| M3 provider desk evaluation | Current | #27; PROVIDER_EVALUATION.md; $0 evaluation only |
+| M3 offline flight domain model | Next | #28; no provider access |
 | Windows contributor guide | Parallel review | PR #15; #11 still open |
 | History, commercial context and distribution | Planned | M2–M5 below |
 
@@ -98,7 +100,7 @@ Exit criteria:
 
 ### M2 — Local history
 
-Complete: #21 / PR #23 added opt-in snapshot recording in a separate history database, replay dedupe, retention and independent backup/restore. Complete: #22 / PR #25 added offline queries, explicit pruning and exports. Current: #24 validates M2 release/cross-version recovery and prepares a source candidate. See HISTORY.md and ADR 0003. No schema migration is introduced; future migrations require verified automatic pre-migration backups and transactional failure/recovery tests.
+Complete: #21 / PR #23 added opt-in snapshot recording in a separate history database, replay dedupe, retention and independent backup/restore. Complete: #22 / PR #25 added offline queries, explicit pruning and exports. Complete: #24 / PR #26 validated M2 release/cross-version recovery and published source candidate `v0.3.0-rc.1`; candidate feedback remains. See HISTORY.md and ADR 0003. No schema migration is introduced; future migrations require verified automatic pre-migration backups and transactional failure/recovery tests.
 
 Proposed commands:
 
@@ -124,6 +126,8 @@ Exit criteria:
 - A prior compatible release can use restored pre-migration data without schema errors.
 
 ### M3 — Airline and flight context
+
+Current: #27 records a public-source comparison and ADR 0004. Owner budget is $0/month, evaluation only; no commercial provider is selected. #28 can proceed with a provider-neutral model and synthetic fixtures. Actual integration remains gated by explicit budget/plan/rights confirmation and authorized coverage samples. See PROVIDER_EVALUATION.md.
 
 Proposed commands (provider capabilities must be confirmed first):
 

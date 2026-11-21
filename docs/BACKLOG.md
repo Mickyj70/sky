@@ -19,8 +19,9 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 - Complete: #9 release/recovery validation in PR #20 and published source candidate `v0.2.0-rc.1`.
 - Complete: #21 / PR #23, M2 recording, dedupe, retention and recovery.
 - Complete: #22 / PR #25, offline queries/pruning/export.
-- Current: [#24](https://github.com/Mickyj70/sky/issues/24), M2 cross-version recovery/release acceptance and source candidate `v0.3.0-rc.1`.
-- Next: candidate feedback and M3 provider evaluation before integration.
+- Complete: #24 / PR #26, M2 recovery validation and published `v0.3.0-rc.1`.
+- Current: [#27](https://github.com/Mickyj70/sky/issues/27), M3 provider evaluation; owner budget $0, evaluation only.
+- Next: [#28](https://github.com/Mickyj70/sky/issues/28), offline dated-flight model and synthetic fixtures. Commercial adoption is deferred.
 - Parallel review: #11 Windows guide in PR #15.
 - Later: M2–M5 work packages below; split into implementation issues when ready.
 
@@ -86,8 +87,8 @@ M0–M1 tickets now exist on GitHub; their linked issues are the source of truth
 | --- | --- | --- | --- |
 | M2-01 (#21) | M2 | Observation storage, dedupe, retention and independent recovery | Replay, disk retention, migration and recovery tests |
 | M2-02 (#22) | M2 | History queries, explicit pruning and CSV/JSON export | Offline fixture queries and export comparison |
-| M3-01 | M3 | Commercial provider evaluation and budget decision | Recorded feature/coverage/cost/rights comparison with official sources |
-| M3-02 | M3 | Dated flights and airline code resolution | Date reuse, codeshare and missing-field fixtures |
+| M3-01 (#27) | M3 | Provider desk evaluation and $0/no-adoption decision | Recorded feature/coverage/cost/rights comparison with official sources |
+| M3-02a (#28) | M3 | Provider-neutral dated-flight model and synthetic fixtures | Date reuse, codeshare and missing-field fixtures |
 | M4-01 | M4 | Versioned platform builds and checksums | Build matrix and install smoke evidence |
 | M4-02 | M4 | Optional interactive watch screen | Shared scheduler tests and terminal usability checks |
 | M5-01 | M5 | Compatibility and 1.0 release review | All roadmap acceptance and recovery evidence linked |

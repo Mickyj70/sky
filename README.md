@@ -7,7 +7,7 @@ A Go CLI for observed aircraft, nearby traffic, and regional airline activity us
 
 ## Source release candidate
 
-The published M1 source candidate is **v0.2.0-rc.1**. M2 source candidate **v0.3.0-rc.1** is being prepared with [history/recovery notes](docs/releases/v0.3.0-rc.1.md) and native cross-version validation. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
+The published M1 source candidate is **v0.2.0-rc.1**. M2 source candidate **v0.3.0-rc.1** is published with [history/recovery notes](docs/releases/v0.3.0-rc.1.md) and native cross-version validation. See [candidate notes](docs/releases/v0.2.0-rc.1.md) and [validation/recovery evidence](docs/RELEASE_VALIDATION.md). It is not a stable release and has no prebuilt binary assets.
 
 Install the source candidate with Go 1.24+:
 
@@ -15,7 +15,7 @@ Install the source candidate with Go 1.24+:
 go install github.com/Mickyj70/sky/cmd/sky@v0.2.0-rc.1
 ```
 
-The M1 candidate does not include the M2 history commands below. The development branch includes recording/query/export; the M2 source candidate will include them once tagged.
+The M1 candidate does not include the M2 history commands below. Both current main and the M2 source candidate include recording/query/export.
 
 ## Install the development version
 
@@ -100,7 +100,7 @@ Implemented: aircraft and callsign lookup, nearby search, regional operator filt
 
 Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
 
-Current development adds opt-in SQLite snapshot recording (see [history](docs/HISTORY.md)); offline history queries, pruning and CSV/JSON export are in the current change, followed by a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Current development adds opt-in SQLite snapshot recording (see [history](docs/HISTORY.md)); offline history queries, pruning and CSV/JSON export have merged. M3 [provider evaluation](docs/PROVIDER_EVALUATION.md) is evaluation-only at a $0 budget; a provider-neutral offline model comes next before any commercial integration. No hosted backend is required for the current commands.
 
 ## Development
 
