@@ -6,6 +6,10 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ### Added
 
+- Offline history queries with normalized target/time filters, deterministic bounded pages, payload validation and provider attribution.
+- Page-based JSON/CSV export with known aircraft fields/units, missing-value preservation and spreadsheet-safe source text.
+- Offline history pruning that previews by default and deletes only with `--apply`, with transactional counts and rollback tests. Existing history/watchlist schema 1 is unchanged.
+
 - Opt-in `watch run --record` with durable local snapshot deduplication and configurable transactional retention (default 30 days).
 - Independent schema-1 `history.db`, offline status, verified backup and non-overwriting restore; saved-watchlist schema and M1 compatibility are unchanged.
 - History recording, retention failure, replay and recovery fixture tests and ADR 0003. No implicit schema migration is introduced.
@@ -13,7 +17,7 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 ### Changed
 
 - Development CLI/provider identity is `0.3.0-dev`. The published `v0.2.0-rc.1` source candidate is unchanged.
-- Current M2 scope is recording and recovery; offline queries, explicit pruning and CSV/JSON export follow in #22.
+- M2 recording/recovery is merged; issue #22 adds offline query, pruning and export. Release/recovery acceptance remains before a 0.3.0 candidate.
 
 ## 0.2.0-rc.1 — 2026-11-20 (source candidate)
 

@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-20. Current focus: **issue #21 — M2 opt-in observation recording and recovery**.
+Updated: 2026-11-21. Current focus: **issue #22 — offline history queries, pruning and export**.
 
 ## What is complete
 
@@ -12,27 +12,28 @@ Updated: 2026-11-20. Current focus: **issue #21 — M2 opt-in observation record
 | Redirect rejection and read validation without unnecessary writer-lock contention | PR #17 |
 | Live watch command, observation states, text/NDJSON events and clean shutdown | #8 / PR #19, merged 2026-11-20 |
 | M1 clean-source and schema-1 recovery validation, source candidate | #9 / PR #20, merged 2026-11-20; `v0.2.0-rc.1` |
+| Opt-in snapshot recording, durable dedupe/retention and independent history recovery | #21 / PR #23, merged 2026-11-20 |
 | Bounded polling engine with injectable clock/provider, deduplication, cooldowns and backoff | #7 / PR #18, merged 2026-11-19 |
 
-Merged baseline: `18b3632` (PR #20). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
+Merged baseline: `97d6db1` (PR #23). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
 
 ## Current change
 
-Branch: `feat/m2-observation-recording`; issue #21.
+Branch: `feat/22-history-query-export`; issue #22.
 
-- Opt-in `watch run --record`, persistent replay deduplication and transactional retention (default 30 days).
-- Independent `history.db` schema 1; existing watchlist schema 1 and M1 rollback compatibility remain unchanged.
-- Offline `history status`, verified backup and non-overwriting restore.
-- Fixture tests for persistence, retention failures, replay, schema refusal, recovery and unchanged request/output behavior.
-- Development identity `0.3.0-dev`; the published M1 candidate retains `0.2.0-rc.1`.
+- Offline target/time queries with deterministic bounded pagination and corruption validation.
+- JSON/CSV page export preserving stored aircraft fields, missing values, UTC timestamps, units and provider attribution.
+- Explicit preview/apply pruning with atomic counts/deletion and rollback tests.
+- Existing history/watchlist schema 1 and Go dependencies are unchanged; no migration is needed.
+- Development identity remains `0.3.0-dev`; published M1 candidate remains `0.2.0-rc.1`.
 
 See [history guide](HISTORY.md), [history decision](decisions/0003-observation-history.md), [watch contract](WATCH_RUN.md), and [architecture](ARCHITECTURE.md).
 
 ## What remains, in order
 
-1. Review and merge #21's opt-in recording foundation.
-2. Complete #22: offline history queries, explicit pruning and CSV/JSON export, with deterministic bounds and attribution.
-3. Finish M2 acceptance and release/recovery evidence. Any future schema migration requires a verified automatic pre-migration backup, transactional migration and failure/downgrade tests before shipping.
+1. Review and merge #22's offline history query/prune/export implementation.
+2. Complete #24 M2 release validation: fresh-source walkthrough, history cross-version recovery, export/prune acceptance and a tested source candidate.
+3. Gather candidate feedback and finish M2 acceptance. Any future schema migration requires a verified automatic pre-migration backup, transactional migration and failure/downgrade tests before shipping.
 4. M3: select a commercial flight-status provider/budget and implement dated flights, airline code resolution and codeshares. Provider rights and coverage need verification first.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
 6. M5: stable 1.0 contracts, compatibility/deprecation policy, operational guidance and demonstrated recovery.
@@ -44,8 +45,8 @@ Parallel work: Windows PowerShell contributor instructions are still open in iss
 - The watch request budget is per foreground run, not a shared account/IP daily quota. Restarts, other processes and unrelated commands can spend additional requests.
 - Targets are loaded once per run. Editing the saved list requires restarting to reload it.
 - Position states describe data freshness at each poll. They do not establish scheduled flight status.
-- History is locally collected and opt-in in the current change; queries/exports are not implemented yet. There is no daemon, external alerting or stable binary release.
-- Current direct dependencies are Cobra v1.10.2 and modernc.org/sqlite v1.45.0; Go 1.24+ remains required. No new Go dependency is needed for history recording.
+- History recording is locally collected and opt-in; the current change adds queries/exports. Multi-page exports require an unchanged dataset for stable offsets. There is no daemon, external alerting or stable binary release.
+- Current direct dependencies are Cobra v1.10.2 and modernc.org/sqlite v1.45.0; Go 1.24+ remains required. No new Go dependency is needed for history query/export.
 
 ## Verification and checkpoints
 
