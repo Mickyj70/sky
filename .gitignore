@@ -12,3 +12,7 @@
 *.sqlite3-wal
 *.sqlite3-shm
 *.db-journal
+
+# Python release-validation tooling
+__pycache__/
+*.pyc

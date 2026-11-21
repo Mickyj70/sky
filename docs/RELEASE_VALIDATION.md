@@ -1,6 +1,6 @@
-# M1 release validation
+# Release validation
 
-Issue #9 prepares the first source release candidate, `v0.2.0-rc.1`. This is not a stable release or a promise of tested native binaries on every platform. Platform packaging, checksums and broader runtime support remain M4.
+Issue #9 established validation for the M1 source candidate, `v0.2.0-rc.1`. The current runner additionally validates the M2 candidate, `v0.3.0-rc.1`, as described below. This is not a stable release or a promise of tested native binaries on every platform. Platform packaging, checksums and broader runtime support remain M4.
 
 ## Reproduce the checks
 

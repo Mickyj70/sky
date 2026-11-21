@@ -2,7 +2,6 @@
 """Validate committed source and schema-1 recovery without live provider calls."""
 import argparse
 import hashlib
-from validate_history import validate_history
 import datetime
 import io
 import json
@@ -15,6 +14,10 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+
+# The release runner leaves no generated files in the working checkout.
+sys.dont_write_bytecode = True
+from validate_history import validate_history
 
 
 def run(args, cwd, env=None, expected=0):
