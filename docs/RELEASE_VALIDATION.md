@@ -55,3 +55,29 @@ Before replacing a binary that manages watchlists, create a uniquely named backu
 Build a previous checkpoint in a separate worktree if rollback is needed. Use a backup supported by that binary's schema and restore into a **new** data directory; verify the list before selecting it. The previous checkpoint manages schema-1 targets but does not implement live `watch run`. Reverting to it restores those earlier capabilities, not the newer command.
 
 No database migration is introduced by the release-preparation change. See RECOVERY and WATCHLISTS for the full procedure. Neither Git tags nor a release asset back up your local database.
+
+## M2 candidate and history acceptance
+
+Current release preparation targets `v0.3.0-rc.1`; the M1 source tag remains unchanged. Run the current committed validator against matching current source. The scripts themselves must match the candidate archive; use the scripts from a tagged checkout to reproduce an earlier candidate rather than mixing newer tooling with old source.
+
+```sh
+git fetch origin --tags
+python3 scripts/validate_release.py --candidate-ref HEAD --report /tmp/sky-validation.json
+```
+
+The runner now resolves **three** exact revisions before export: candidate, watchlist baseline (`--baseline-ref`, unchanged), and history baseline (`--history-baseline-ref`, default `97d6db1776c3ebbd3712dff770ebfaf23e40a5f2`, PR #23). The JSON report adds history baseline identity, validator SHA-256 hashes, synthetic fixture-writer hash and completion timestamp. It contains no collected history, credentials or personal database contents. CI's **M1 and M2 release validation** job preserves it as the same 30-day `release-validation` artifact. Go 1.24.x and stable checks remain separate.
+
+Clean-archive tests/vet and production binary builds run first. The runner then copies the archived `scripts/history_fixture.go.txt` into a new temporary command directory in each candidate/history-baseline source archive and compiles **separate synthetic writers**. This harness uses each revision's real `history.Record` API; it is not linked into either production CLI binary, adds no public API endpoint override, and makes no provider requests. The production source files are not modified. The fixture source/hash is preserved so this distinction is reviewable.
+
+Additional native checks must pass:
+
+1. Candidate writes → earlier binary reads; earlier API writes → candidate reads; replay across revisions is a no-op.
+2. One-record pages reconstruct the exact saved observations; target normalization and inclusive/exclusive UTC bounds agree. JSON/CSV preserve target, times, state, aircraft fields/units/missing values, source attribution and continuation metadata.
+3. Each binary restores the other's verified history snapshot without changing record keys/payloads. Backup/restore overwrite refusals leave active observations intact.
+4. Prune preview changes nothing; apply deletes strictly older encounters and persists its counts; a pre-prune snapshot recovers all observations into a new destination.
+5. History restore preserves saved targets, and watchlist restore preserves history.
+6. Unsupported/unrelated history identities are refused by both binaries without changing database bytes; corrupt backup rows are never published as restored history.
+
+All data is synthetic and temporary. SQLite's backup API is used for corrupt-copy fixtures; no running SQLite main file is copied as a backup. Fixture HTTP polling, retention failures, output failures and cancellation remain covered by the Go suite. There is no in-place schema migration to test in this candidate; any future migration still needs automatic verified pre-migration backup and transactional failure/downgrade evidence before shipping.
+
+For publication, require the query/export dependency (#25) merged, green Go 1.24/stable and combined release validation, and a clean validation report for the exact candidate commit. Then create the annotated immutable tag; record it in the release PR. M2 notes live in `docs/releases/v0.3.0-rc.1.md`. This source candidate has no prebuilt assets and is not a stable release. A fix after tagging needs a new candidate number.

@@ -79,9 +79,14 @@ def validate_history(root, candidate, baseline, compiler, env, current, previous
                 and row["snapshot_at_utc"] == result["snapshot_at"]
                 and row["retrieved_at_utc"] == result["retrieved_at"]
                 and row["state"] == observation["state"]
+                and row["target_kind"] == observation["target"]["kind"]
+                and row["target_identifier"] == observation["target"]["identifier"]
+                and float(row["position_age_seconds"]) == observation["position_age_seconds"]
                 and json.loads(row["aircraft_json"]) == result["aircraft"]
                 and row["source"] == "adsb.lol" and row["source_license"] == "ODbL 1.0"
-                and row["collection"] == "local" and row["page_has_more"] == "false",
+                and row["attribution_url"] == "https://www.adsb.lol/docs/open-data/api"
+                and row["collection"] == "local" and row["page_has_more"] == "false"
+                and row["page_next_offset"] == "",
                 "CSV changed aircraft units/missing values, timestamps, attribution or completeness")
     passed("history: native query pagination, UTC/target filters and JSON/CSV parity/attribution")
 

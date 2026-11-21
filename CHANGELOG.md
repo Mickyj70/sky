@@ -4,6 +4,10 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ## Unreleased
 
+Further changes will be recorded here after the M2 candidate.
+
+## 0.3.0-rc.1 — 2026-11-21 (source candidate preparation)
+
 ### Added
 
 - Offline history queries with normalized target/time filters, deterministic bounded pages, payload validation and provider attribution.
@@ -16,8 +20,8 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ### Changed
 
-- Development CLI/provider identity is `0.3.0-dev`. The published `v0.2.0-rc.1` source candidate is unchanged.
-- M2 recording/recovery is merged; issue #22 adds offline query, pruning and export. Release/recovery acceptance remains before a 0.3.0 candidate.
+- Candidate CLI/provider identity is `0.3.0-rc.1`. The published `v0.2.0-rc.1` source candidate is unchanged.
+- M2 recording/query/export is merged. Issue #24 adds clean-source native cross-version history recovery, export/prune walkthroughs and hashed fixture/validator evidence. Tag publication follows green validation; no stable-release or platform-binary claim.
 
 ## 0.2.0-rc.1 — 2026-11-20 (source candidate)
 

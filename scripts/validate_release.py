@@ -202,6 +202,7 @@ def main():
         run([compiler, "build", "-o", old_history, "./cmd/sky"], history_baseline, env=env)
         validate_history(root, candidate, history_baseline, compiler, env,
                          current, old_history, run, require, passed, report)
+    report["completed_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     report["status"] = "passed"
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
