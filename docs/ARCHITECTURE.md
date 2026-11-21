@@ -24,7 +24,7 @@ flowchart LR
 | `internal/cli` | Parse/validate arguments, call providers/storage, filter results and render tables/JSON |
 | `internal/provider` | Query/result interface, adsb.lol adapter, response validation, typed errors and cooldown metadata |
 | `internal/tracking` | Bounded polling engine, injectable clock/provider, observation state and repeat suppression |
-| `internal/history` | Independent opt-in snapshot storage, cross-run dedupe, transactional retention and history recovery |
+| `internal/history` | Independent opt-in snapshot storage, cross-run dedupe, transactional retention, bounded queries/pruning and history recovery |
 | `internal/storage` | Identifier normalization, platform data paths, versioned SQLite watchlists and backup/restore |
 
 Live lookups do not require SQLite. Local watchlist operations do not call a provider or require API credentials. Registrations and hex addresses are separate saved targets until identity resolution is implemented.
@@ -81,4 +81,4 @@ The issue #8 change connects this scheduler to `watch run` and adds an observati
 
 Before introducing a second provider, separate provider wire DTOs from typed internal observations. Current result fields intentionally preserve the alpha JSON contract, including raw altitude number/ground/unknown representation. Shared identifier rules can also replace duplicated validation once that domain boundary is introduced.
 
-Opt-in recording stores successful completed observations before output suppression in independent history.db; no transactions span network requests or scheduler waits. See HISTORY.md and ADR 0003. Offline queries/export and a hosted service remain future work.
+Opt-in recording stores successful completed observations before output suppression in independent history.db; no transactions span network requests or scheduler waits. See HISTORY.md and ADR 0003. The issue #22 change adds offline indexed queries, page-based JSON/CSV exports and preview/apply pruning. Queries read a single SQLite snapshot per command; offset pages across commands need an unchanged dataset. A hosted service remains future work.

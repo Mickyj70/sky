@@ -3,7 +3,6 @@ package history
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -103,24 +102,13 @@ func walkBackup(ctx context.Context, path string, visit func(tracking.Observatio
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var key, kind, id, source, payload string
-		var stamp int64
-		if err = rows.Scan(&key, &kind, &id, &source, &stamp, &payload); err != nil {
-			return err
-		}
-		var o tracking.Observation
-		if err = json.Unmarshal([]byte(payload), &o); err != nil {
-			return err
-		}
-		normalized, want, encoded, err := encode(o)
+		record, encoded, err := scanRecord(rows)
 		if err != nil {
 			return err
 		}
-		if want != key || kind != string(normalized.Target.Kind) || id != normalized.Target.Identifier || source != normalized.Result.Source || stamp != normalized.At.UnixNano() {
-			return fmt.Errorf("history backup row identity mismatch")
-		}
+
 		if visit != nil {
-			if err = visit(normalized, key, encoded); err != nil {
+			if err = visit(record.Observation, record.Key, encoded); err != nil {
 				return err
 			}
 		}

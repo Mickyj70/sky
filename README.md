@@ -100,7 +100,7 @@ Implemented: aircraft and callsign lookup, nearby search, regional operator filt
 
 Implemented additionally: persistent watchlists, SQLite snapshot backup and non-overwriting restore.
 
-Current development adds opt-in SQLite snapshot recording (see [history](docs/HISTORY.md)); offline queries and exports follow next, then a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
+Current development adds opt-in SQLite snapshot recording (see [history](docs/HISTORY.md)); offline history queries, pruning and CSV/JSON export are in the current change, followed by a separate flight-status provider for dated flight numbers, schedules, routes, delays, and ETAs. No hosted backend is required for the current commands.
 
 ## Development
 
@@ -145,4 +145,16 @@ sky history status
 sky history backup ./history-snapshot.db
 ```
 
-Requires saved targets. Recording is opt-in, stores successful snapshots in a separate `history.db`, and defaults to 30-day retention applied during successful recording. It does not add provider requests. History queries and exports are planned in #22. See [HISTORY.md](docs/HISTORY.md) for replay identity, retention limits, licensing and independent backup/restore.
+Requires saved targets. Recording is opt-in, stores successful snapshots in a separate `history.db`, and defaults to 30-day retention applied during successful recording. It does not add provider requests. The current history query/export change (#22) adds the commands below. See [HISTORY.md](docs/HISTORY.md) for replay identity, retention limits, licensing and independent backup/restore.
+
+### Query and export local history (development)
+
+After the history query/export PR merges, update and rebuild the development branch:
+
+```sh
+sky history --registration G-ZBKE --since 24h --json
+sky history export --registration G-ZBKE --format csv --limit 100 > history-page.csv
+sky history prune --before 2026-10-01T00:00:00Z --json
+```
+
+Queries and exports are bounded pages of locally collected snapshots, with no provider calls. Check `has_more`/`next_offset` (or CSV page columns) before treating an export as complete. Pruning previews by default; back up first and add `--apply` to delete. See [history command contract](docs/HISTORY.md) for UTC bounds, units, pagination, spreadsheet text handling and recovery.

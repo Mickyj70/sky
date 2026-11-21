@@ -93,3 +93,5 @@ This compatibility evidence applies to the recorded checkpoint and schema, not e
 ## M2 history is independent
 
 `watch backup/restore` handles saved targets only. Opt-in observations live in `history.db`; use `history backup/restore` for those snapshots. Back up both when both matter. Restoring either does not modify the other, and the snapshots are not one cross-database transaction. M1 binaries ignore history and keep reading unchanged schema-1 watchlists. Future history migrations require automatic verified pre-migration backups and transactional failure/recovery tests before release. See [HISTORY.md](HISTORY.md) and [ADR 0003](decisions/0003-observation-history.md).
+
+History queries and exports do not replace SQLite backups. Before `history prune --apply`, create a uniquely named `history backup` and verify it. Preview/apply counts can differ if another process records/prunes between the two commands. To undo deliberate pruning, restore the compatible snapshot into a destination with no existing history; saved watchlist targets are independent. See HISTORY.md for exact page and pruning semantics.
