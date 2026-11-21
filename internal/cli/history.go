@@ -93,5 +93,6 @@ func historyCommand(asJSON *bool) *cobra.Command {
 		}{path, count}, fmt.Sprintf("Restored %d history snapshot(s).\nDatabase: %s", count, path))
 	}}
 	root.AddCommand(status, backup, restore)
+	historyQueries(root, asJSON, resolve)
 	return root
 }

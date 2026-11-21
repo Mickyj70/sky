@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -356,6 +357,7 @@ func TestHistoryReplayAndRecoveryAcrossProcesses(t *testing.T) {
 	dir := t.TempDir()
 	recovered := t.TempDir()
 	snapshot := filepath.Join(t.TempDir(), "history-snapshot.db")
+	cutoff := time.Now().Add(time.Hour).UTC().Format(time.RFC3339Nano)
 	steps := [][]string{
 		{"watch", "add", "--registration", "G-TEST", "--data-dir", dir, "--json"},
 		{"watch", "run", "--record", "--max-requests", "1", "--data-dir", dir, "--json"},
@@ -364,8 +366,13 @@ func TestHistoryReplayAndRecoveryAcrossProcesses(t *testing.T) {
 		{"history", "backup", snapshot, "--data-dir", dir, "--json"},
 		{"history", "restore", snapshot, "--data-dir", recovered, "--json"},
 		{"history", "status", "--data-dir", recovered, "--json"},
+		{"history", "--data-dir", dir, "--json"},
+		{"history", "export", "--format", "csv", "--data-dir", dir},
+		{"history", "prune", "--before", cutoff, "--data-dir", dir, "--json"},
+		{"history", "prune", "--before", cutoff, "--apply", "--data-dir", dir, "--json"},
+		{"history", "--data-dir", dir, "--json"},
 	}
-	for _, args := range steps {
+	for i, args := range steps {
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		child := exec.CommandContext(ctx, binary, append([]string{"-test.run=^TestProcessHelper$", "--"}, args...)...)
 		child.Env = append(os.Environ(), "SKY_PROCESS_HELPER=1", "SKY_TEST_URL="+server.URL)
@@ -376,6 +383,33 @@ func TestHistoryReplayAndRecoveryAcrossProcesses(t *testing.T) {
 		cancel()
 		if err != nil || stderr.Len() != 0 {
 			t.Fatalf("%v: %v %s", args, err, stderr.String())
+		}
+		if args[0] == "history" && args[1] == "--data-dir" {
+			var page struct {
+				Records []json.RawMessage `json:"records"`
+			}
+			want := 1
+			if i == len(steps)-1 {
+				want = 0
+			}
+			if err = json.Unmarshal(out.Bytes(), &page); err != nil || len(page.Records) != want {
+				t.Fatalf("query/prune persistence: %s %v", out.String(), err)
+			}
+		}
+		if args[0] == "history" && args[1] == "export" {
+			rows, err := csv.NewReader(bytes.NewReader(out.Bytes())).ReadAll()
+			if err != nil || len(rows) != 2 || rows[1][9] != "adsb.lol" {
+				t.Fatalf("export: %s %v", out.String(), err)
+			}
+		}
+		if args[0] == "history" && args[1] == "prune" {
+			var result struct {
+				Matched, Deleted int64
+				Applied          bool
+			}
+			if err = json.Unmarshal(out.Bytes(), &result); err != nil || result.Matched != 1 || (result.Applied && result.Deleted != 1) || (!result.Applied && result.Deleted != 0) {
+				t.Fatalf("prune: %s %v", out.String(), err)
+			}
 		}
 		if args[0] == "history" && args[1] == "status" {
 			var stats struct {

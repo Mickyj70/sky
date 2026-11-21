@@ -1,6 +1,6 @@
 # Sky roadmap
 
-Status: active delivery plan, reconciled against merged code and GitHub issues. Updated 2026-11-20.
+Status: active delivery plan, reconciled against merged code and GitHub issues. Updated 2026-11-21.
 
 ## Product goal
 
@@ -12,9 +12,9 @@ The first usable product is a CLI. A hosted service becomes a separate decision 
 
 The Go CLI implements aircraft registration/hex lookup, callsign lookup, nearby traffic, regional airline filtering, table/JSON output, typed errors and cancellation. Persistent SQLite watchlists, non-overwriting snapshot recovery and the architecture fixes have merged. PR #18 merged the bounded, fake-clock-tested polling scheduler.
 
-PR #19 merged `watch run`, observation states, plain text and NDJSON output. PR #20 completed #9: clean-source validation, recovery/downgrade evidence and published source candidate `v0.2.0-rc.1`. It is not a stable release or a set of prebuilt binaries. Current work is #21: opt-in local history recording and recovery, followed by #22 for offline queries/pruning/export. Development version is `0.3.0-dev`.
+PR #19 merged `watch run`, observation states, plain text and NDJSON output. PR #20 completed #9: clean-source validation, recovery/downgrade evidence and published source candidate `v0.2.0-rc.1`. It is not a stable release or a set of prebuilt binaries. PR #23 completed #21 recording/recovery. Current work is #22 for offline queries/pruning/export. Development version is `0.3.0-dev`.
 
-Persistent observation history, exports, complete airline fleets, dated commercial flight status, notifications and distribution remain future milestones.
+Observation recording/recovery is merged; query/export is the current change. M2 release validation (#24), complete airline fleets, dated commercial flight status, notifications and distribution remain ahead.
 
 | Work | Status | Evidence / next action |
 | --- | --- | --- |
@@ -25,8 +25,8 @@ Persistent observation history, exports, complete airline fleets, dated commerci
 | Polling scheduler and request budgets | Complete | PR #18; #7 closed |
 | Live observation states/output | Complete | #8 / PR #19; WATCH_RUN.md |
 | Saved-tracking release validation | Complete | #9 / PR #20; source candidate `v0.2.0-rc.1` |
-| Opt-in observation recording/recovery | Current | #21; HISTORY.md and ADR 0003 |
-| Offline history queries/pruning/export | Next | #22 |
+| Opt-in observation recording/recovery | Complete | #21 / PR #23; HISTORY.md and ADR 0003 |
+| Offline history queries/pruning/export | Current | #22 |
 | Windows contributor guide | Parallel review | PR #15; #11 still open |
 | History, commercial context and distribution | Planned | M2–M5 below |
 
@@ -97,14 +97,14 @@ Exit criteria:
 
 ### M2 — Local history
 
-Current: #21 adds opt-in snapshot recording in a separate history database, replay dedupe, retention and independent backup/restore. #22 adds offline queries, explicit pruning and exports. See HISTORY.md and ADR 0003. No schema migration is introduced; future migrations require verified automatic pre-migration backups and transactional failure/recovery tests.
+Complete: #21 / PR #23 added opt-in snapshot recording in a separate history database, replay dedupe, retention and independent backup/restore. Current: #22 adds offline queries, explicit pruning and exports. M2 release/cross-version recovery validation follows in #24. See HISTORY.md and ADR 0003. No schema migration is introduced; future migrations require verified automatic pre-migration backups and transactional failure/recovery tests.
 
 Proposed commands:
 
 ```sh
 sky history --registration G-VBEL --since 24h
 sky history --registration G-VBEL --since 24h --json
-sky export --registration G-VBEL --format csv
+sky history export --registration G-VBEL --format csv
 ```
 
 Deliver:
