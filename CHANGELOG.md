@@ -4,6 +4,12 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ## Unreleased
 
+## 0.5.0-rc.1
+
+- Native binary prerelease for Linux amd64, Apple Silicon macOS and Windows amd64. Archives include SHA-256 sidecars and build provenance.
+
+### Included since 0.3.0-rc.1
+
 - Added an internal dated-flight model and synthetic coverage for service dates, codeshares, ambiguity and timing conflicts (#28).
 - M3 provider desk evaluation and ADR 0004 record the owner's $0/month evaluation-only decision, adoption gates and next offline model issue #28. No provider is selected and no runtime/data/dependency changes are introduced.
 
