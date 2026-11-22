@@ -16,7 +16,7 @@ Targets are loaded once at startup, then the database connection is closed. Rest
 
 The first cycle starts immediately. Later cycles use the scheduler's minimum start-to-start interval. Attempts, including failed or canceled attempts, consume the finite **per-run** budget. A run may finish partway through a cycle. The budget is not a shared daily quota: restarting or running another process starts another allowance, and other commands/users can consume the same provider account/IP allowance. Select the budget/interval against your provider's current limits.
 
-Tracking runs only while this foreground process runs. Ctrl-C cancels requests or waits, emits a stopped event when the output remains writable, and exits 130. There is no daemon, notification integration, or persistent observation history yet.
+Tracking runs only while this foreground process runs. Ctrl-C cancels requests or waits, emits a stopped event when the output remains writable, and exits 130. Optional recording and retention are described below.
 
 ## States and freshness
 

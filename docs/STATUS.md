@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **M4 installation and rollback acceptance**.
+Updated: 2026-11-21. Current focus: **M5 compatibility policy and release checklist**.
 
 ## What is complete
 
@@ -29,8 +29,8 @@ See [history guide](HISTORY.md), [history decision](decisions/0003-observation-h
 
 ## What remains, in order
 
-1. Review the M4 install and rollback evidence in BINARY_INSTALL.md.
-2. Prepare the M5 compatibility policy and release checklist.
+1. Review the proposed [1.x compatibility policy](COMPATIBILITY.md) and [stable release checklist](RELEASE_CHECKLIST.md).
+2. Audit the CLI contract and rehearse recovery against the 1.0 candidate.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. Optional M4 follow-up: interactive terminal UI.
