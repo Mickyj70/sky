@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **M4 native platform verification (#31)**.
+Updated: 2026-11-21. Current focus: **M4 versioned binary archives (#33)**.
 
 ## What is complete
 
@@ -29,7 +29,7 @@ See [history guide](HISTORY.md), [history decision](decisions/0003-observation-h
 
 ## What remains, in order
 
-1. Review and merge the native CI change for #31. Versioned binaries and checksums follow.
+1. Review versioned CI archives and checksums for #33, then prepare a tagged binary release.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
