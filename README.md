@@ -19,6 +19,22 @@ The M1 candidate does not include the M2 history commands below. Both current ma
 
 Native CI builds are available after successful packaging runs. See [binary installation and checksum verification](docs/BINARY_INSTALL.md).
 
+## Install the binary prerelease
+
+Download the ZIP and matching SHA-256 sidecar for Linux amd64, Apple Silicon macOS, or Windows amd64. [Sky v0.5.0-rc.1 downloads](https://github.com/Mickyj70/sky/releases/tag/v0.5.0-rc.1)
+
+- Linux: run `sha256sum -c <sidecar>`. On macOS use `shasum -a 256 -c <sidecar>`. Replace `<sidecar>` with the downloaded checksum filename. After a successful check, extract the ZIP to a new directory and run `chmod +x sky` inside it.
+- Windows: run `Get-FileHash <zip> -Algorithm SHA256` and compare its hash to the first field in the sidecar. After they match, extract the ZIP to a new directory.
+
+Inside the extracted directory, run the following on Linux or macOS. In PowerShell, replace `./sky` with `.\sky.exe`.
+
+```sh
+./sky --version
+./sky plane G-ZBKE --json
+```
+
+Expect version `0.5.0-rc.1`. A successful lookup can return an empty `aircraft` array when the provider has no matching observation. See the [installation guide](docs/BINARY_INSTALL.md) for completion and rollback instructions.
+
 ## Install the development version
 
 Requires Go 1.24 or newer:

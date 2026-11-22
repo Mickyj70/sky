@@ -153,7 +153,7 @@ Exit criteria:
 
 ### M4 — Distribution and terminal experience
 
-PR #32 merged native verification for Linux amd64, macOS arm64 and Windows amd64. Issue #33 adds versioned CI archives, checksums and installation guidance. Tagged release publication follows packaging review.
+PR #32 merged native verification for Linux amd64, macOS arm64 and Windows amd64. Issue #33 adds versioned CI archives, checksums and installation guidance. PR #35 published the first binary prerelease. The Linux install and rollback walkthrough is recorded in [binary installation](BINARY_INSTALL.md). Native packaging and recovery CI also passed on Apple Silicon macOS and Windows amd64.
 
 Deliver:
 

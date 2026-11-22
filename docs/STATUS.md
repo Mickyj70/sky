@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **M4 binary prerelease v0.5.0-rc.1**.
+Updated: 2026-11-21. Current focus: **M4 installation and rollback acceptance**.
 
 ## What is complete
 
@@ -29,7 +29,8 @@ See [history guide](HISTORY.md), [history decision](decisions/0003-observation-h
 
 ## What remains, in order
 
-1. Verify the native archives from PR #34’s packaging workflow and publish the tagged binary prerelease.
+1. Review the M4 install and rollback evidence in BINARY_INSTALL.md.
+2. Prepare the M5 compatibility policy and release checklist.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
