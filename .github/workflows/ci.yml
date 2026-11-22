@@ -63,3 +63,41 @@ jobs:
           path: ${{ runner.temp }}/release-validation.json
           if-no-files-found: error
           retention-days: 30
+
+  native-smoke:
+    name: Native smoke (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-amd64
+            runner: ubuntu-latest
+            binary: sky
+          - platform: darwin-arm64
+            runner: macos-15
+            binary: sky
+          - platform: windows-amd64
+            runner: windows-latest
+            binary: sky.exe
+    env:
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.24.x'
+          cache: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify native target
+        shell: bash
+        run: test "$(go env GOOS)-$(go env GOARCH)" = "${{ matrix.platform }}"
+      - name: Test native behavior with offline fixtures
+        run: go test ./...
+      - name: Build native binary without CGO
+        run: go build -o bin/${{ matrix.binary }} ./cmd/sky
+      - name: Exercise built binary and SQLite recovery
+        run: python scripts/smoke_platform.py bin/${{ matrix.binary }}

@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **issue #28 — dated-flight model and synthetic fixtures**.
+Updated: 2026-11-21. Current focus: **M4 native platform verification (#31)**.
 
 ## What is complete
 
@@ -21,16 +21,15 @@ Merged baseline: `fdc4132` (PR #29). M1 release validation is complete; source c
 
 ## Current change
 
-Branch: `feat/28-dated-flight-model`.
+PR #30 merged the offline dated-flight model. Commercial adoption remains deferred under the $0 budget.
 
-- Provider evaluation and the $0 decision are recorded in merged PR #29.
-- The internal dated-flight model resolves operating and marketing flight numbers by departure-local date and preserves timing and source provenance. See the [model contract](FLIGHT_MODEL.md).
+Issue #31 adds native Go 1.24 tests and CGO-free binary smoke checks on Linux amd64, macOS arm64 and Windows amd64. The binary checks exercise SQLite recovery through temporary paths with spaces.
 
 See [history guide](HISTORY.md), [history decision](decisions/0003-observation-history.md), [watch contract](WATCH_RUN.md), and [architecture](ARCHITECTURE.md).
 
 ## What remains, in order
 
-1. Review the dated-flight model and synthetic fixtures in issue #28.
+1. Review and merge the native CI change for #31. Versioned binaries and checksums follow.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
