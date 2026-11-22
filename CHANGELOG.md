@@ -4,6 +4,10 @@ Version numbers identify source release candidates/releases; prototype checkpoin
 
 ## Unreleased
 
+## 1.0.0-rc.1
+
+- Preview the 1.x compatibility policy and validate native binary packaging and recovery against the prior binary prerelease.
+
 ## 0.5.0-rc.1
 
 - Native binary prerelease for Linux amd64, Apple Silicon macOS and Windows amd64. Archives include SHA-256 sidecars and build provenance.
