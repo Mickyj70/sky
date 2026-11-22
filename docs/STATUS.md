@@ -33,8 +33,7 @@ See [history guide](HISTORY.md), [history decision](decisions/0003-observation-h
 2. Prepare the M5 compatibility policy and release checklist.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
-5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
-6. M5: stable 1.0 contracts, compatibility/deprecation policy, operational guidance and demonstrated recovery.
+5. Optional M4 follow-up: interactive terminal UI.
 
 Parallel work: Windows PowerShell contributor instructions are still open in issue #11 / PR #15. This does not block the watch implementation.
 

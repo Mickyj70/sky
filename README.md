@@ -43,7 +43,7 @@ Requires Go 1.24 or newer:
 go install github.com/Mickyj70/sky/cmd/sky@main
 ```
 
-Add your Go binary directory (`go env GOPATH` plus `/bin`, unless `GOBIN` is set) to PATH. This installs the current development branch; no stable release or prebuilt binaries are available yet.
+Add your Go binary directory (`go env GOPATH` plus `/bin`, unless `GOBIN` is set) to PATH. This installs current main. Use the binary prerelease above if you prefer a prebuilt executable.
 
 ## Build from source
 
