@@ -43,6 +43,56 @@ go build -o bin/sky ./cmd/sky
 
 `gofmt -l` must print no paths. Live smoke checks are optional, consume provider quota, and should record the date and command without recording secrets. An API outage must not fail the offline test suite.
 
+## Windows setup with PowerShell
+
+Install Go 1.24 or newer and Git, then follow the fork and clone instructions above. Run these commands from the repository root.
+
+### Build and run
+
+```powershell
+go version
+go build -o bin/sky.exe ./cmd/sky
+.\bin\sky.exe --help
+```
+
+### Run offline checks
+
+```powershell
+gofmt -l cmd internal
+go test ./...
+go vet ./...
+```
+
+`gofmt -l` must print no paths. These tests use local fixtures and require no provider API key or live flight-data requests.
+
+Race detection requires CGO and a compatible C compiler installed and available on PATH:
+
+```powershell
+go test -race ./...
+```
+
+If the required toolchain is unavailable, run the ordinary tests above and report that race detection was not run locally. GitHub CI runs race checks on Linux.
+
+### Optional provider credentials
+
+Public lookups can run without a key within the provider's current limits. If you have a provider key, set it for the current PowerShell session:
+
+```powershell
+$env:SKY_API_KEY = "your-key"
+```
+
+Remove it when finished:
+
+```powershell
+Remove-Item Env:SKY_API_KEY -ErrorAction SilentlyContinue
+```
+
+Never commit credentials or paste them into issues, pull requests, or logs.
+
+### Platform verification
+
+Current GitHub CI runs on Linux. These instructions do not establish verified Windows runtime support. Contributors testing on Windows should record their Windows version, Go version, and check results in their pull request.
+
 ## Decisions and compatibility
 
 Record significant choices under `docs/decisions/` with context, decision, consequences, and status. Examples: storage driver, provider contracts, JSON compatibility, paid provider selection, or a hosted backend.
