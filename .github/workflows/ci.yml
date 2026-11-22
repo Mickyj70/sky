@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: [v0.5.0-rc.1]
+    tags: [v1.0.0-rc.1]
   pull_request:
   workflow_dispatch:
 
@@ -56,7 +56,7 @@ jobs:
           go-version: '1.24.x'
           cache: true
       - name: Validate clean source, watchlists and history recovery
-        run: python3 scripts/validate_release.py --report "$RUNNER_TEMP/release-validation.json"
+        run: python3 scripts/validate_release.py --history-baseline-ref v0.5.0-rc.1 --report "$RUNNER_TEMP/release-validation.json"
       - name: Preserve validation evidence
         uses: actions/upload-artifact@v7.0.2
         with:
@@ -111,7 +111,7 @@ jobs:
           retention-days: 30
 
   publish-prerelease:
-    if: github.event_name == 'push' && github.ref == 'refs/tags/v0.5.0-rc.1'
+    if: github.event_name == 'push' && github.ref == 'refs/tags/v1.0.0-rc.1'
     needs: [checks, release-validation, native-smoke]
     runs-on: ubuntu-latest
     permissions:

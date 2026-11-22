@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **M5 compatibility policy and release checklist**.
+Updated: 2026-11-21. Current focus: **M5 validation of v1.0.0-rc.1**.
 
 ## What is complete
 

@@ -8,7 +8,7 @@ Record a commit, CI run or reproduction result for each completed item. Review t
 - [ ] Rehearse upgrade from the supported prior version with populated watchlist and history. Back up each database independently, then restore into a fresh directory with the prior binary and compare the recovered datasets. Record which versions were exercised. See [recovery guide](RECOVERY.md).
 - [ ] Demonstrate failed-release recovery and, if a migration is included, interrupted-migration recovery. For a release with unchanged schemas, record the schema check and rollback rehearsal as the relevant evidence.
 - [ ] Review operator documentation for quotas, timeouts, provider outages, history retention, pruning and backup. Confirm CI fixtures use synthetic data and check archives for unintended files.
-- [ ] Prepare and validate a tagged 1.0 release candidate. The current publication job is scoped to `v0.5.0-rc.1`. Extend or replace that trigger and verify asset publication before relying on it for the 1.0 tag.
+- [ ] Prepare and validate a tagged 1.0 release candidate. The candidate publication job targets `v1.0.0-rc.1`. Verify the published assets and review the stable publication trigger separately.
 - [ ] Review candidate feedback, publish stable assets and notes when acceptance is complete, and verify downloads. Preserve prior versions and their recovery instructions.
 
 Existing evidence to carry forward includes the [v0.5.0-rc.1 tagged CI run](https://github.com/Mickyj70/sky/actions/runs/45056027376) and the [Linux install and rollback walkthrough](BINARY_INSTALL.md). Candidate-specific checks remain open until exercised against the 1.0 candidate.
