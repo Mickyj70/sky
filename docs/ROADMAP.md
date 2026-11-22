@@ -172,6 +172,8 @@ Exit criteria:
 
 ### M5 — Stable 1.0
 
+See the proposed [compatibility policy](COMPATIBILITY.md) and [release checklist](RELEASE_CHECKLIST.md).
+
 Deliver:
 
 - A supported JSON schema and documented exit codes, command compatibility, and deprecation policy.
