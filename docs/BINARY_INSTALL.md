@@ -1,6 +1,6 @@
-# Install and verify a Sky CI build
+# Install and verify a Sky binary
 
-Download the matching artifact from a successful GitHub Actions run. The artifact contains the Sky ZIP and its `.zip.sha256` sidecar. Unpack the outer artifact first and keep both files together.
+For a tagged prerelease, download the matching ZIP and SHA-256 sidecar from [GitHub Releases](https://github.com/Mickyj70/sky/releases). For a development build, download the matching artifact from a successful GitHub Actions run. The artifact contains the Sky ZIP and its `.zip.sha256` sidecar. Unpack the outer artifact first and keep both files together.
 
 | System | Actions artifact |
 | --- | --- |

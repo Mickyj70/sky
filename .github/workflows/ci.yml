@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: [v0.5.0-rc.1]
   pull_request:
   workflow_dispatch:
 
@@ -108,3 +109,27 @@ jobs:
           path: packages/*
           if-no-files-found: error
           retention-days: 30
+
+  publish-prerelease:
+    if: github.event_name == 'push' && github.ref == 'refs/tags/v0.5.0-rc.1'
+    needs: [checks, release-validation, native-smoke]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: sky-package-*
+          path: release-assets
+      - name: Verify release archives
+        run: python3 scripts/verify_release_assets.py release-assets "$(git rev-parse HEAD)" "$GITHUB_REF_NAME"
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release-assets/sky-package-*/*.zip release-assets/sky-package-*/*.zip.sha256 \
+            --verify-tag --prerelease --latest=false --title "Sky $GITHUB_REF_NAME" \
+            --notes-file "docs/releases/$GITHUB_REF_NAME.md"
