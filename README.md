@@ -17,6 +17,8 @@ go install github.com/Mickyj70/sky/cmd/sky@v0.2.0-rc.1
 
 The M1 candidate does not include the M2 history commands below. Both current main and the M2 source candidate include recording/query/export.
 
+Native CI builds are available after successful packaging runs. See [binary installation and checksum verification](docs/BINARY_INSTALL.md).
+
 ## Install the development version
 
 Requires Go 1.24 or newer:

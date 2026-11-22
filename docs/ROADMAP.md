@@ -153,7 +153,7 @@ Exit criteria:
 
 ### M4 — Distribution and terminal experience
 
-Issue #31 starts native verification on Linux amd64, macOS arm64 and Windows amd64 while live provider integration is deferred. Binary packaging and checksums follow native CI.
+PR #32 merged native verification for Linux amd64, macOS arm64 and Windows amd64. Issue #33 adds versioned CI archives, checksums and installation guidance. Tagged release publication follows packaging review.
 
 Deliver:
 

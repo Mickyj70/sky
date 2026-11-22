@@ -99,5 +99,12 @@ jobs:
         run: go test ./...
       - name: Build native binary without CGO
         run: go build -o bin/${{ matrix.binary }} ./cmd/sky
-      - name: Exercise built binary and SQLite recovery
-        run: python scripts/smoke_platform.py bin/${{ matrix.binary }}
+      - name: Package and smoke-test the extracted binary
+        run: python scripts/package_platform.py bin/${{ matrix.binary }} packages
+      - name: Upload verified archive and checksum
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: sky-package-${{ matrix.platform }}
+          path: packages/*
+          if-no-files-found: error
+          retention-days: 30
