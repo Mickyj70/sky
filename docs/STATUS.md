@@ -1,6 +1,6 @@
 # Current project status
 
-Updated: 2026-11-21. Current focus: **issue #27 — M3 provider evaluation ($0, evaluation only)**.
+Updated: 2026-11-21. Current focus: **issue #28 — dated-flight model and synthetic fixtures**.
 
 ## What is complete
 
@@ -17,25 +17,20 @@ Updated: 2026-11-21. Current focus: **issue #27 — M3 provider evaluation ($0, 
 | M2 native cross-version recovery validation and source candidate | #24 / PR #26, merged 2026-11-21; `v0.3.0-rc.1` |
 | Bounded polling engine with injectable clock/provider, deduplication, cooldowns and backoff | #7 / PR #18, merged 2026-11-19 |
 
-Merged baseline: `f949090` (PR #26). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
+Merged baseline: `fdc4132` (PR #29). M1 release validation is complete; source candidate `v0.2.0-rc.1` is published. Stable releases and prebuilt binaries remain future work.
 
 ## Current change
 
-Branch: `docs/m3-provider-evaluation`; issue #27.
+Branch: `feat/28-dated-flight-model`.
 
-- Official-source comparison of FlightAware, aviationstack and Aviation Edge: plan/date capability, recurring cost, quota/billing unit and data rights.
-- Owner budget confirmed **$0/month; evaluation only**. No subscriptions, account setup, provider API calls, keys or vendor outreach.
-- Commercial adoption deferred; actual sample coverage and applicable storage/export permissions remain unverified.
-- Next free implementation is #28: provider-neutral dated-flight model with synthetic fixtures, no live adapter/command.
-
-See [provider evaluation](PROVIDER_EVALUATION.md) and [ADR 0004](decisions/0004-flight-status-provider.md).
+- Provider evaluation and the $0 decision are recorded in merged PR #29.
+- The internal dated-flight model resolves operating and marketing flight numbers by departure-local date and preserves timing and source provenance. See the [model contract](FLIGHT_MODEL.md).
 
 See [history guide](HISTORY.md), [history decision](decisions/0003-observation-history.md), [watch contract](WATCH_RUN.md), and [architecture](ARCHITECTURE.md).
 
 ## What remains, in order
 
-1. Review/merge #27's provider evaluation and no-spend adoption policy.
-2. Implement #28: offline dated-flight model, service dates/timezones, operating/marketing identities, legs and ambiguity fixtures.
+1. Review the dated-flight model and synthetic fixtures in issue #28.
 3. Continue M2 candidate feedback; stable 0.3.0 is a separate final-release decision.
 4. Commercial M3 adapter stays deferred until an explicit budget change, verified rights/plan and authorized coverage samples.
 5. M4: tested platform binaries/checksums, build-time versioning, install/upgrade instructions and optional interactive terminal UI.
