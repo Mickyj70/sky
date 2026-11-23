@@ -176,3 +176,5 @@ sky history prune --before 2026-10-01T00:00:00Z --json
 ```
 
 Queries and exports are bounded pages of locally collected snapshots, with no provider calls. Check `has_more`/`next_offset` (or CSV page columns) before treating an export as complete. Pruning previews by default; back up first and add `--apply` to delete. See [history command contract](docs/HISTORY.md) for UTC bounds, units, pagination, spreadsheet text handling and recovery.
+
+See the [acceptance walkthrough](docs/ACCEPTANCE_TEST.md) for the clean-install test and named-place examples.

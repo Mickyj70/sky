@@ -18,6 +18,8 @@ const MaxPageBytes = 16 << 20
 // Filter bounds use first local encounter time, inclusive Since/exclusive Until.
 // Offset pagination is stable on an unchanged database, ordered by time then key.
 type Filter struct {
+	// Select optionally filters a record before pagination.
+	Select        func(Record) bool
 	Kind          storage.Kind
 	Identifier    string
 	Since, Until  *time.Time
@@ -130,18 +132,31 @@ func (s *Store) Query(ctx context.Context, f Filter) (Page, error) {
 		return Page{}, err
 	}
 	where, args := f.where()
-	args = append(args, f.Limit+1, f.Offset)
-	rows, err := tx.QueryContext(ctx, "SELECT key,kind,identifier,source,at_ns,payload FROM observations"+where+" ORDER BY at_ns,key LIMIT ? OFFSET ?", args...)
+	suffix := ""
+	if f.Select == nil {
+		suffix = " LIMIT ? OFFSET ?"
+		args = append(args, f.Limit+1, f.Offset)
+	}
+	rows, err := tx.QueryContext(ctx, "SELECT key,kind,identifier,source,at_ns,payload FROM observations"+where+" ORDER BY at_ns,key"+suffix, args...)
 	if err != nil {
 		return Page{}, err
 	}
 	defer rows.Close()
-	size := 0
+	size, skipped := 0, 0
 	seen := map[string]bool{}
 	for rows.Next() {
 		record, payload, err := scanRecord(rows)
 		if err != nil {
 			return Page{}, err
+		}
+		if f.Select != nil {
+			if !f.Select(record) {
+				continue
+			}
+			if skipped < f.Offset {
+				skipped++
+				continue
+			}
 		}
 		if len(page.Records) == f.Limit {
 			page.HasMore = true
