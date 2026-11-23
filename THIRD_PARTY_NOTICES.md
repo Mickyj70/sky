@@ -2,7 +2,7 @@
 
 Sky's MIT license applies to Sky code. Dependencies retain their own licenses; it does not relicense upstream libraries or provider data.
 
-The SQLite driver introduced by issue #6 is [modernc.org/sqlite v1.45.0](https://pkg.go.dev/modernc.org/sqlite@v1.45.0), under the following BSD-style license. Packaged releases must also retain applicable notices for transitive dependencies and other components; this file is not a complete dependency license inventory.
+The SQLite driver introduced by issue #6 is [modernc.org/sqlite v1.46.1](https://pkg.go.dev/modernc.org/sqlite@v1.46.1), under the following BSD-style license. Packaged releases must also retain applicable notices for transitive dependencies and other components; this file is not a complete dependency license inventory.
 
 ```text
 Copyright (c) 2017 The Sqlite Authors. All rights reserved.
