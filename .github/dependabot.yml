@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: modernc.org/sqlite
+        # v1.46.2 raised the minimum to Go 1.25. Revisit with the Go support policy.
+        versions: [">= 1.46.2"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

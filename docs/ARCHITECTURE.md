@@ -37,7 +37,7 @@ Versions are pinned in `go.mod` / `go.sum`.
 | Go module | Version | Purpose |
 | --- | --- | --- |
 | `github.com/spf13/cobra` | v1.10.2 | CLI commands, help, argument/flag handling and completions |
-| `modernc.org/sqlite` | v1.45.0 | Pure Go SQLite driver registered with `database/sql` |
+| `modernc.org/sqlite` | v1.46.1 | Pure Go SQLite driver registered with `database/sql` |
 
 `github.com/spf13/pflag` v1.0.9 is an indirect Cobra dependency. Other indirect modules support SQLite/platform functionality; `go list -m all` shows the complete graph. No dependency is added by the architecture fixes.
 

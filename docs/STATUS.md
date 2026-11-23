@@ -43,7 +43,7 @@ Parallel work: Windows PowerShell contributor instructions are still open in iss
 - Targets are loaded once per run. Editing the saved list requires restarting to reload it.
 - Position states describe data freshness at each poll. They do not establish scheduled flight status.
 - History recording is locally collected and opt-in; offline queries/exports have merged. Multi-page exports require an unchanged dataset for stable offsets. There is no daemon, external alerting or stable binary release.
-- Current direct dependencies are Cobra v1.10.2 and modernc.org/sqlite v1.45.0; Go 1.24+ remains required. No new Go dependency is needed for history query/export.
+- Current direct dependencies are Cobra v1.10.2 and modernc.org/sqlite v1.46.1; Go 1.24+ remains required. No new Go dependency is needed for history query/export.
 
 ## Verification and checkpoints
 
