@@ -19,13 +19,14 @@ import (
 
 func historyQueries(root *cobra.Command, asJSON *bool, resolve func(*cobra.Command) (string, error)) {
 	makeQuery := func(export bool) *cobra.Command {
-		var registration, hex, since, until, format string
+		var registration, hex, since, until, format, state, day string
+		var radius float64
 		var limit, offset int
 		cmd := root
 		if export {
 			cmd = &cobra.Command{Use: "export", Short: "Export one bounded page of locally collected snapshots"}
 		}
-		cmd.Args = cobra.NoArgs
+		cmd.Args = cobra.MaximumNArgs(1)
 		cmd.RunE = func(cmd *cobra.Command, args []string) error {
 			if export && format != "csv" && format != "json" {
 				return fmt.Errorf("format must be csv or json")
@@ -42,7 +43,47 @@ func historyQueries(root *cobra.Command, asJSON *bool, resolve func(*cobra.Comma
 				filter.Kind = storage.Hex
 				filter.Identifier = hex
 			}
+			selected := cmd.Flags().Changed("state")
+			placeName := state
+			if len(args) == 1 {
+				if selected {
+					return fmt.Errorf("choose a place argument or --state")
+				}
+				selected, placeName = true, args[0]
+			}
+			zone := "UTC"
+			if selected {
+				p, err := namedPlace(placeName)
+				if err != nil {
+					return err
+				}
+				if !validRadius(radius) {
+					return fmt.Errorf("radius-km must be greater than 0 and at most 463")
+				}
+				zone = p.zone
+				filter.Select = func(record history.Record) bool {
+					for _, aircraft := range record.Observation.Result.Aircraft {
+						if aircraft.Latitude != nil && aircraft.Longitude != nil &&
+							p.contains(*aircraft.Latitude, *aircraft.Longitude, radius) {
+							return true
+						}
+					}
+					return false
+				}
+			} else if cmd.Flags().Changed("radius-km") {
+				return fmt.Errorf("radius-km requires a named place")
+			}
 			now := time.Now().UTC()
+			if cmd.Flags().Changed("day") {
+				if cmd.Flags().Changed("since") || cmd.Flags().Changed("until") {
+					return fmt.Errorf("day cannot be combined with since or until")
+				}
+				start, end, err := dayBounds(day, zone, now)
+				if err != nil {
+					return err
+				}
+				filter.Since, filter.Until = &start, &end
+			}
 			var err error
 			if cmd.Flags().Changed("since") {
 				filter.Since, err = historyBound(since, now, true)
@@ -93,6 +134,9 @@ func historyQueries(root *cobra.Command, asJSON *bool, resolve func(*cobra.Comma
 			}
 			return nil
 		}
+		cmd.Flags().StringVar(&state, "state", "", "Named area: Abuja/FCT, Lagos or Heathrow")
+		cmd.Flags().StringVar(&day, "day", "", "Whole local day (today or YYYY-MM-DD; UTC without a place)")
+		cmd.Flags().Float64Var(&radius, "radius-km", 100, "Radius around the named area")
 		cmd.Flags().StringVar(&registration, "registration", "", "Filter saved registration (not an alias for its hex)")
 		cmd.Flags().StringVar(&hex, "hex", "", "Filter six-character ICAO hex")
 		cmd.MarkFlagsMutuallyExclusive("registration", "hex")

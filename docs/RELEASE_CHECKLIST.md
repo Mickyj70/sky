@@ -12,3 +12,5 @@ Record a commit, CI run or reproduction result for each completed item. Review t
 - [ ] Review candidate feedback, publish stable assets and notes when acceptance is complete, and verify downloads. Preserve prior versions and their recovery instructions.
 
 Existing evidence to carry forward includes the [v0.5.0-rc.1 tagged CI run](https://github.com/Mickyj70/sky/actions/runs/45056027376) and the [Linux install and rollback walkthrough](BINARY_INSTALL.md). Candidate-specific checks remain open until exercised against the 1.0 candidate.
+
+See the [start-to-finish acceptance test](ACCEPTANCE_TEST.md) for the published candidate and named-place checks.

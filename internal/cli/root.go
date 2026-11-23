@@ -110,7 +110,7 @@ func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 	area := func(airline bool) *cobra.Command {
 		var lat, lon, radius float64
 		var airborne bool
-		use, short := "nearby", "Find observed aircraft around coordinates"
+		use, short := "nearby [PLACE]", "Find observed aircraft around a named place or coordinates"
 		long := ""
 		example := "  sky nearby --lat 6.58 --lon 3.32 --radius-km 100\n  sky nearby --lat 51.47 --lon -0.45 --radius-km 100 --airborne --json"
 		if airline {
@@ -122,21 +122,45 @@ func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 		cmd := &cobra.Command{Use: use, Short: short, Long: long, Example: example, Args: cobra.NoArgs}
 		if airline {
 			cmd.Args = cobra.ExactArgs(1)
+		} else {
+			cmd.Args = cobra.MaximumNArgs(1)
 		}
-		cmd.Flags().Float64Var(&lat, "lat", 0, "Latitude (-90 to 90; required)")
-		cmd.Flags().Float64Var(&lon, "lon", 0, "Longitude (-180 to 180; required)")
+		cmd.Flags().Float64Var(&lat, "lat", 0, "Latitude (-90 to 90)")
+		cmd.Flags().Float64Var(&lon, "lon", 0, "Longitude (-180 to 180)")
 		cmd.Flags().Float64Var(&radius, "radius-km", 100, "Search radius in kilometres (maximum 463)")
 		cmd.Flags().BoolVar(&airborne, "airborne", false, "Include only aircraft reporting numeric barometric altitude")
-		_ = cmd.MarkFlagRequired("lat")
-		_ = cmd.MarkFlagRequired("lon")
+		var name string
+		cmd.Flags().StringVar(&name, "state", "", "Named area: Abuja/FCT, Lagos or Heathrow")
 		cmd.RunE = func(cmd *cobra.Command, args []string) error {
-			if math.IsNaN(lat) || math.IsInf(lat, 0) || lat < -90 || lat > 90 {
+			selected := cmd.Flags().Changed("state")
+			placeName := name
+			if !airline && len(args) == 1 {
+				if selected {
+					return fmt.Errorf("choose a place argument or --state")
+				}
+				selected, placeName = true, args[0]
+			}
+			hasLat, hasLon := cmd.Flags().Changed("lat"), cmd.Flags().Changed("lon")
+			latitude, longitude := lat, lon
+			if selected {
+				if hasLat || hasLon {
+					return fmt.Errorf("choose a named place or --lat and --lon")
+				}
+				p, err := namedPlace(placeName)
+				if err != nil {
+					return err
+				}
+				latitude, longitude = p.lat, p.lon
+			} else if !hasLat || !hasLon {
+				return fmt.Errorf("supply a named place or both --lat and --lon")
+			}
+			if math.IsNaN(latitude) || math.IsInf(latitude, 0) || latitude < -90 || latitude > 90 {
 				return fmt.Errorf("latitude must be between -90 and 90")
 			}
-			if math.IsNaN(lon) || math.IsInf(lon, 0) || lon < -180 || lon > 180 {
+			if math.IsNaN(longitude) || math.IsInf(longitude, 0) || longitude < -180 || longitude > 180 {
 				return fmt.Errorf("longitude must be between -180 and 180")
 			}
-			if math.IsNaN(radius) || math.IsInf(radius, 0) || radius <= 0 || radius > 463 {
+			if !validRadius(radius) {
 				return fmt.Errorf("radius-km must be greater than 0 and at most 463")
 			}
 			prefix := ""
@@ -146,7 +170,7 @@ func newWithClock(source provider.Source, clock tracking.Clock) *cobra.Command {
 					return fmt.Errorf("use a three-letter ICAO operator code, for example UAL or BAW")
 				}
 			}
-			return fetch(cmd, provider.Query{Kind: provider.Nearby, Latitude: lat, Longitude: lon, RadiusKM: radius}, prefix, airborne)
+			return fetch(cmd, provider.Query{Kind: provider.Nearby, Latitude: latitude, Longitude: longitude, RadiusKM: radius}, prefix, airborne)
 		}
 		return cmd
 	}
